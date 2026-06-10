@@ -13,18 +13,18 @@ export default function Home() {
           "Donate time and knowledge instead of money."
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-          <Link 
+          <a 
             href="/login" 
             className={buttonVariants({ variant: "default", size: "lg" }) + " h-14 px-8 text-lg font-bold w-full sm:w-auto"}
           >
             Sign In
-          </Link>
-          <Link 
+          </a>
+          <a 
             href="/register" 
             className={buttonVariants({ variant: "outline", size: "lg" }) + " h-14 px-8 text-lg font-bold w-full sm:w-auto border-2"}
           >
             Register
-          </Link>
+          </a>
         </div>
       </div>
     </div>

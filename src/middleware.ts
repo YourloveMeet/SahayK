@@ -31,12 +31,16 @@ export async function middleware(request: NextRequest) {
                            url.pathname.startsWith('/volunteer') || 
                            url.pathname.startsWith('/admin')
 
+  console.log(`[Middleware] Path: ${url.pathname}, User: ${user?.email}`)
+
   if (!user && isProtectedRoute) {
+    console.log(`[Middleware] Redirecting to /login because user is not authenticated`)
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
   if (user) {
     if (isAuthPage) {
+      console.log(`[Middleware] Redirecting logged in user away from auth page to /`)
       return NextResponse.redirect(new URL('/', request.url))
     }
 
