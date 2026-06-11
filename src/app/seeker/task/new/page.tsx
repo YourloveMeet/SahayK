@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
@@ -23,7 +23,7 @@ const taskSchema = z.object({
   longitude: z.number({ message: 'Please select a location on the map' }),
 })
 
-export default function NewTaskPage() {
+function NewTaskForm() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const prefillServiceId = searchParams.get('service')
@@ -486,5 +486,13 @@ export default function NewTaskPage() {
         </form>
       </div>
     </div>
+  )
+}
+
+export default function NewTaskPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div></div>}>
+      <NewTaskForm />
+    </Suspense>
   )
 }
