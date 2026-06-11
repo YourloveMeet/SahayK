@@ -15,7 +15,7 @@ export default async function SeekerDashboard() {
     .order('created_at', { ascending: false })
 
   // Fetch Categories and Services from Database
-  const { data: categories } = await supabase
+  const { data: categories } = await (supabase as any)
     .from('service_categories')
     .select(`
       id,
@@ -35,7 +35,7 @@ export default async function SeekerDashboard() {
     .order('sort_order');
 
   const getCategoryLabel = (val: string) => {
-    return categories?.find(c => c.id === val)?.title || val;
+    return categories?.find((c: any) => c.id === val)?.title || val;
   }
 
   return (

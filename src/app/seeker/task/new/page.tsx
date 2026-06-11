@@ -17,10 +17,10 @@ const taskSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters'),
   description: z.string().min(10, 'Description must be at least 10 characters'),
   category: z.string().min(1, 'Please select a category'),
-  isUrgent: z.boolean().default(false),
+  isUrgent: z.boolean(),
   areaName: z.string().optional(),
-  latitude: z.number({ required_error: 'Please select a location on the map' }),
-  longitude: z.number({ required_error: 'Please select a location on the map' }),
+  latitude: z.number({ message: 'Please select a location on the map' }),
+  longitude: z.number({ message: 'Please select a location on the map' }),
 })
 
 export default function NewTaskPage() {
@@ -67,7 +67,7 @@ export default function NewTaskPage() {
       const supabase = createClient()
       
       // Load categories
-      const { data: cats } = await supabase.from('service_categories').select('id, title').order('sort_order')
+      const { data: cats } = await (supabase as any).from('service_categories').select('id, title').order('sort_order')
       if (cats) {
         setCategories(cats)
         // Explicitly set the value after options are available
@@ -78,7 +78,7 @@ export default function NewTaskPage() {
 
       // Pre-fill title if coming from a specific service modal
       if (prefillServiceId) {
-        const { data: service } = await supabase.from('services').select('title').eq('id', prefillServiceId).single()
+        const { data: service } = await (supabase as any).from('services').select('title').eq('id', prefillServiceId).single()
         if (service) {
           setValue('title', `Need help with: ${service.title}`, { shouldValidate: true })
         }

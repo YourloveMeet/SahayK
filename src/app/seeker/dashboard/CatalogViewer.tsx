@@ -44,6 +44,8 @@ export default function CatalogViewer({ categories }: { categories: any[] }) {
           // Sort services by sort_order
           const sortedServices = [...(category.services || [])].sort((a, b) => a.sort_order - b.sort_order);
 
+          if (sortedServices.length === 0) return null;
+
           return (
             <div key={category.id} className="space-y-6">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white px-2 border-l-4 border-gray-900 dark:border-white pl-4 flex items-center gap-3">
