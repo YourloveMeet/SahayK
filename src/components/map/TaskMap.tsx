@@ -5,7 +5,7 @@ import L from 'leaflet'
 import { Database } from '@/types/database.types'
 import { useEffect } from 'react'
 
-type Task = Database['public']['Tables']['tasks']['Row'] & { profiles: { full_name: string } | null }
+type Task = Database['public']['Tables']['tasks']['Row'] & { profiles: { full_name: string, avatar_url: string | null } | null }
 
 const defaultIcon = L.icon({
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',

@@ -1,5 +1,6 @@
 import React from 'react';
 import { TASK_CATEGORIES } from '@/lib/constants';
+import { AlertCircle, CheckCircle } from 'lucide-react';
 
 interface FilterBarProps {
   category: string;
@@ -19,22 +20,22 @@ export function FilterBar({
   setIsUrgentOnly
 }: FilterBarProps) {
   return (
-    <div className="flex flex-col md:flex-row items-center gap-4 p-4 backdrop-blur-xl bg-white/60 dark:bg-zinc-900/60 rounded-2xl border border-white/60 dark:border-white/10 shadow-md relative z-10">
-      <div className="flex items-center gap-3 w-full md:w-auto">
-        <span className="font-bold text-gray-700 dark:text-gray-300">Filter by:</span>
+    <div className="flex flex-col gap-4 p-5 backdrop-blur-xl bg-white/60 dark:bg-black/60 rounded-[1rem] border border-gray-200 dark:border-zinc-800 shadow-sm transition-all hover:shadow-md relative z-10">
+      <div className="flex items-center gap-3 w-full">
+        <span className="font-bold text-gray-900 dark:text-gray-100">Filter by:</span>
       </div>
 
-      <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
+      <div className="flex flex-col gap-3 w-full">
         {/* Category Filter */}
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          className="w-full p-3 bg-white/50 dark:bg-black/30 border border-gray-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none dark:text-white font-medium appearance-none"
+          className="w-full p-3 bg-white/50 dark:bg-black/50 border border-gray-200 dark:border-zinc-800 rounded-xl focus:ring-2 focus:ring-gray-900 dark:focus:ring-white focus:outline-none dark:text-white font-medium appearance-none transition-all cursor-pointer"
         >
           <option value="all">All Categories</option>
           {TASK_CATEGORIES.map((cat) => (
             <option key={cat.value} value={cat.value}>
-              {cat.icon} {cat.label}
+              {cat.label}
             </option>
           ))}
         </select>
@@ -43,7 +44,7 @@ export function FilterBar({
         <select
           value={distance}
           onChange={(e) => setDistance(Number(e.target.value))}
-          className="w-full p-3 bg-white/50 dark:bg-black/30 border border-gray-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none dark:text-white font-medium appearance-none"
+          className="w-full p-3 bg-white/50 dark:bg-black/50 border border-gray-200 dark:border-zinc-800 rounded-xl focus:ring-2 focus:ring-gray-900 dark:focus:ring-white focus:outline-none dark:text-white font-medium appearance-none transition-all cursor-pointer"
         >
           <option value={2}>Within 2 km</option>
           <option value={5}>Within 5 km</option>
@@ -57,11 +58,15 @@ export function FilterBar({
           onClick={() => setIsUrgentOnly(!isUrgentOnly)}
           className={`w-full p-3 rounded-xl border font-bold transition-all flex items-center justify-center gap-2 ${
             isUrgentOnly
-              ? 'bg-rose-100 border-rose-300 text-rose-700 dark:bg-rose-900/40 dark:border-rose-800 dark:text-rose-300'
-              : 'bg-white/50 border-gray-200 text-gray-600 dark:bg-black/30 dark:border-zinc-700 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-zinc-800'
+              ? 'bg-gray-900 border-gray-900 text-white dark:bg-white dark:border-white dark:text-gray-900 shadow-md'
+              : 'bg-white/50 border-gray-200 text-gray-600 dark:bg-black/50 dark:border-zinc-800 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-zinc-800'
           }`}
         >
-          {isUrgentOnly ? '🔴 Urgent Only' : '⚪ All Priorities'}
+          {isUrgentOnly ? (
+            <><AlertCircle className="w-5 h-5 text-white dark:text-gray-900" /> Urgent Only</>
+          ) : (
+            <><CheckCircle className="w-5 h-5 text-gray-400" /> All Priorities</>
+          )}
         </button>
       </div>
     </div>

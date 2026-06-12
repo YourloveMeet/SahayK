@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { LogoutButton } from '@/components/LogoutButton'
+import { Star } from 'lucide-react'
 import DynamicTaskMap from '@/components/map/DynamicTaskMap'
 import { createClient } from '@/lib/supabase/client'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -12,13 +12,12 @@ import { calculateDistance } from '@/lib/utils'
 import { StatsBar } from '@/components/volunteer/StatsBar'
 import { FilterBar } from '@/components/volunteer/FilterBar'
 import { TaskCard } from '@/components/volunteer/TaskCard'
-// ... (previous imports) ...
 import { LeaderboardWidget } from '@/components/volunteer/LeaderboardWidget'
 import { CompletionModal } from '@/components/volunteer/CompletionModal'
 import { LocationPromptModal } from '@/components/volunteer/LocationPromptModal'
 import { TaskDetailsModal } from '@/components/volunteer/TaskDetailsModal'
 
-type Task = Database['public']['Tables']['tasks']['Row'] & { profiles: { full_name: string } | null }
+type Task = Database['public']['Tables']['tasks']['Row'] & { profiles: { full_name: string, avatar_url: string | null } | null }
 type Profile = Database['public']['Tables']['profiles']['Row']
 
 export default function VolunteerDashboard() {
@@ -73,7 +72,7 @@ export default function VolunteerDashboard() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('tasks')
-        .select(`*, profiles!tasks_seeker_id_fkey(full_name)`)
+        .select(`*, profiles!tasks_seeker_id_fkey(full_name, avatar_url, phone)`)
         .eq('status', 'open')
         .order('created_at', { ascending: false })
       if (error) throw error
@@ -88,7 +87,7 @@ export default function VolunteerDashboard() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('tasks')
-        .select(`*, profiles!tasks_seeker_id_fkey(full_name)`)
+        .select(`*, profiles!tasks_seeker_id_fkey(full_name, avatar_url, phone)`)
         .eq('status', 'accepted')
         .eq('volunteer_id', userProfile?.id || '')
         .order('accepted_at', { ascending: false })
@@ -103,7 +102,7 @@ export default function VolunteerDashboard() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, full_name, help_score, tasks_completed')
+        .select('id, full_name, help_score, tasks_completed, avatar_url, phone')
         .order('help_score', { ascending: false, nullsFirst: false })
         .limit(5)
       if (error) throw error
@@ -237,132 +236,157 @@ export default function VolunteerDashboard() {
   const mapCenter = userLocation ? [userLocation.lat, userLocation.lng] as [number, number] : undefined
 
   return (
-    <div className="max-w-7xl mx-auto space-y-10 p-4 md:p-10 relative">
+    <div className="max-w-[1600px] mx-auto space-y-8 p-4 md:p-8 relative">
       <LocationPromptModal 
         isOpen={showLocationPrompt}
         onSelectLiveLocation={handleLiveLocation}
         onSelectManualLocation={handleManualLocation}
       />
-      <div className="absolute top-20 left-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none"></div>
-      <div className="absolute bottom-20 right-0 w-96 h-96 bg-purple-500/10 rounded-full blur-[120px] pointer-events-none"></div>
+      
+      {/* Background Orbs */}
+      <div className="fixed top-20 left-0 w-[500px] h-[500px] bg-gray-300/10 dark:bg-gray-700/10 rounded-full blur-[150px] pointer-events-none z-0"></div>
+      <div className="fixed bottom-20 right-0 w-[500px] h-[500px] bg-gray-300/10 dark:bg-gray-700/10 rounded-full blur-[150px] pointer-events-none z-0"></div>
 
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 backdrop-blur-xl bg-white/60 dark:bg-zinc-900/60 p-8 rounded-[2rem] shadow-xl border border-white/60 dark:border-white/10 relative z-10">
-        <div>
-          <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-900 to-indigo-600 dark:from-indigo-200 dark:to-indigo-500 tracking-tight">Volunteer Mission Control</h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400 mt-2 font-medium">Browse open requests nearby. Every accepted task earns you Help Score points.</p>
+      {/* Top Bar: Title & Stats */}
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 relative z-10">
+        <div className="xl:col-span-4 backdrop-blur-xl bg-white/60 dark:bg-black/60 p-8 rounded-[1rem] shadow-sm border border-gray-200 dark:border-zinc-800 flex flex-col justify-center transition-all hover:shadow-md">
+          <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">Volunteer Mission Control</h1>
+          <p className="text-base md:text-lg text-gray-600 dark:text-gray-400 mt-2 font-medium">Browse open requests nearby and make an impact.</p>
         </div>
-        <LogoutButton />
+        <div className="xl:col-span-8 flex items-stretch">
+          <div className="w-full h-full flex flex-col justify-center">
+             <StatsBar 
+               helpScore={userProfile?.help_score || 0} 
+               tasksCompleted={userProfile?.tasks_completed || 0} 
+               activeTasksCount={activeTasks?.length || 0} 
+             />
+          </div>
+        </div>
       </div>
 
-      <StatsBar 
-        helpScore={userProfile?.help_score || 0} 
-        tasksCompleted={userProfile?.tasks_completed || 0} 
-        activeTasksCount={activeTasks?.length || 0} 
-      />
-
-      <FilterBar 
-        category={category} 
-        setCategory={setCategory} 
-        distance={distanceFilter} 
-        setDistance={setDistanceFilter} 
-        isUrgentOnly={isUrgentOnly} 
-        setIsUrgentOnly={setIsUrgentOnly} 
-      />
-
       {isLoadingTasks ? (
-        <div className="h-[600px] w-full bg-white/40 dark:bg-zinc-800/40 backdrop-blur-xl animate-pulse rounded-[2.5rem] border border-white/40 dark:border-zinc-700/50 shadow-2xl relative z-10"></div>
+        <div className="h-[600px] w-full bg-white/40 dark:bg-zinc-800/40 backdrop-blur-xl animate-pulse rounded-[1rem] border border-gray-200 dark:border-zinc-800 shadow-2xl relative z-10"></div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 relative z-10">
-          <div className="lg:col-span-2 relative z-0 h-[650px] rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white/60 dark:border-zinc-800/50 flex flex-col bg-white dark:bg-zinc-900">
-            <div className="flex-1 w-full relative">
-              <DynamicTaskMap 
-                tasks={filteredTasks || []} 
-                userLocation={mapCenter} 
-                onTaskSelect={(t: Task) => setSelectedTaskDetails(t)} 
-              />
-            </div>
-            
-            {userLocation?.addressText && (
-              <div className="p-5 md:p-6 border-t border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
-                <div className="flex items-center gap-4 overflow-hidden">
-                  <div className="p-3 bg-indigo-100 dark:bg-indigo-900/50 rounded-2xl text-indigo-600 dark:text-indigo-400 shrink-0">
-                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                  </div>
-                  <div className="overflow-hidden">
-                    <p className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Your Selected Location</p>
-                    <p className="text-lg font-bold text-gray-900 dark:text-white truncate">{userLocation.addressText}</p>
-                  </div>
-                </div>
-                <button 
-                  onClick={() => setShowLocationPrompt(true)}
-                  className="px-6 py-3 bg-gray-100 dark:bg-zinc-800 hover:bg-gray-200 dark:hover:bg-zinc-700 text-gray-900 dark:text-white rounded-xl font-bold transition-colors shrink-0"
-                >
-                  Change Location
-                </button>
-              </div>
-            )}
-          </div>
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 relative z-10">
           
-          <div className="backdrop-blur-2xl bg-white/70 dark:bg-zinc-900/70 rounded-[2.5rem] border border-white/60 dark:border-zinc-700/50 shadow-2xl flex flex-col h-[650px] overflow-hidden">
-            <div className="p-8 border-b border-white/40 dark:border-zinc-700/50 bg-white/30 dark:bg-black/20">
-              <h2 className="text-2xl font-black text-gray-900 dark:text-white flex items-center justify-between">
-                <span>Nearby Requests</span>
-                <span className="bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-300 py-1.5 px-4 rounded-full text-sm font-bold shadow-sm">
-                  {filteredTasks?.length || 0}
-                </span>
-              </h2>
-            </div>
+          {/* Left Sidebar: Feed & Filters (4 Columns) */}
+          <div className="xl:col-span-4 flex flex-col gap-6 h-[800px]">
+            <FilterBar 
+              category={category} 
+              setCategory={setCategory} 
+              distance={distanceFilter} 
+              setDistance={setDistanceFilter} 
+              isUrgentOnly={isUrgentOnly} 
+              setIsUrgentOnly={setIsUrgentOnly} 
+            />
             
-            <div className="overflow-y-auto flex-1 p-6 space-y-6">
-              {filteredTasks?.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-full text-gray-500 space-y-4 text-center">
-                  <span className="text-5xl drop-shadow-md">🌟</span>
-                  <p className="font-medium text-lg">No requests match your filters.<br/>Try expanding your search!</p>
+            <div className="flex-1 overflow-y-auto backdrop-blur-xl bg-white/60 dark:bg-black/60 rounded-[1rem] border border-gray-200 dark:border-zinc-800 shadow-sm transition-all hover:shadow-md flex flex-col">
+              <div className="sticky top-0 z-10 p-6 border-b border-gray-200 dark:border-zinc-800 bg-white/90 dark:bg-black/90 backdrop-blur-md">
+                <h2 className="text-2xl font-black text-gray-900 dark:text-white flex items-center justify-between">
+                  <span>Nearby Requests</span>
+                  <span className="bg-gray-900 text-white dark:bg-white dark:text-gray-900 py-1 px-3 rounded-full text-sm font-bold shadow-sm">
+                    {filteredTasks?.length || 0}
+                  </span>
+                </h2>
+              </div>
+              <div className="p-6 space-y-6 flex-1">
+                {filteredTasks?.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center h-full text-gray-500 space-y-4 text-center mt-20">
+                    <Star className="w-16 h-16 text-gray-300 dark:text-zinc-700 drop-shadow-md" />
+                    <p className="font-medium text-lg">No requests match your filters.<br/>Try expanding your search!</p>
+                  </div>
+                ) : (
+                  filteredTasks?.map((task) => (
+                    <TaskCard 
+                      key={task.id} 
+                      task={task} 
+                      distance={getDistance(task.latitude, task.longitude)}
+                      onViewClick={(t) => setSelectedTaskDetails(t)}
+                    />
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: Map & Active/Leaderboard (8 Columns) */}
+          <div className="xl:col-span-8 flex flex-col gap-6 h-[800px]">
+            
+            {/* Top Right: Massive Interactive Map */}
+            <div className="flex-1 min-h-[350px] relative rounded-[1rem] overflow-hidden shadow-sm hover:shadow-md transition-all border border-gray-200 dark:border-zinc-800 flex flex-col bg-white dark:bg-black">
+              <div className="flex-1 w-full relative">
+                <DynamicTaskMap 
+                  tasks={filteredTasks || []} 
+                  userLocation={mapCenter} 
+                  onTaskSelect={(t: Task) => setSelectedTaskDetails(t)} 
+                />
+              </div>
+              {userLocation?.addressText && (
+                <div className="p-4 md:p-5 border-t border-gray-200 dark:border-zinc-800 bg-white dark:bg-black flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
+                  <div className="flex items-center gap-4 overflow-hidden">
+                    <div className="p-3 bg-gray-100 dark:bg-zinc-800 rounded-xl text-gray-900 dark:text-white shrink-0">
+                      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                    </div>
+                    <div className="overflow-hidden">
+                      <p className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">Your Selected Location</p>
+                      <p className="text-lg font-bold text-gray-900 dark:text-white truncate">{userLocation.addressText}</p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => setShowLocationPrompt(true)}
+                    className="px-6 py-3 bg-gray-900 dark:bg-white hover:bg-black dark:hover:bg-gray-100 text-white dark:text-gray-900 rounded-xl font-bold transition-colors shrink-0 shadow-lg"
+                  >
+                    Change Location
+                  </button>
                 </div>
-              ) : (
-                filteredTasks?.map((task) => (
-                  <TaskCard 
-                    key={task.id} 
-                    task={task} 
-                    distance={getDistance(task.latitude, task.longitude)}
-                    onViewClick={(t) => setSelectedTaskDetails(t)}
-                  />
-                ))
               )}
+            </div>
+
+            {/* Bottom Right: Active Tasks & Leaderboard Split */}
+            <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-0">
+              
+              {/* Active Tasks Panel */}
+              <div className="backdrop-blur-xl bg-white/60 dark:bg-black/60 rounded-[1rem] border border-gray-200 dark:border-zinc-800 shadow-sm transition-all hover:shadow-md flex flex-col overflow-hidden h-full">
+                <div className="p-5 border-b border-gray-200 dark:border-zinc-800 bg-white/90 dark:bg-black/90 backdrop-blur-md">
+                   <h2 className="text-xl font-black text-gray-900 dark:text-white flex items-center justify-between">
+                     <span>My Active Tasks</span>
+                     <span className="bg-gray-900 text-white dark:bg-white dark:text-gray-900 py-1 px-3 rounded-full text-sm font-bold shadow-sm">
+                        {activeTasks?.length || 0}
+                     </span>
+                   </h2>
+                </div>
+                <div className="flex-1 overflow-y-auto p-5">
+                  {activeTasks?.length === 0 ? (
+                    <div className="flex items-center justify-center h-full text-center p-6">
+                      <p className="text-gray-500 dark:text-gray-400 font-medium text-sm">You have no active tasks right now. Accept a request to get started!</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {activeTasks?.map(task => (
+                        <TaskCard 
+                          key={task.id} 
+                          task={task} 
+                          isActive={true} 
+                          onCompleteClick={(t) => setTaskToComplete(t)}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Leaderboard Panel */}
+              <div className="h-full overflow-hidden">
+                <LeaderboardWidget leaders={leaderboard as any || []} />
+              </div>
+
             </div>
           </div>
         </div>
       )}
-
-      {/* Active Tasks & Leaderboard Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 relative z-10">
-        <div className="lg:col-span-2 space-y-6">
-          <h2 className="text-3xl font-black text-gray-900 dark:text-white pl-4 border-l-4 border-indigo-500">My Active Tasks</h2>
-          {activeTasks?.length === 0 ? (
-            <div className="backdrop-blur-xl bg-white/40 dark:bg-zinc-900/40 border border-white/60 dark:border-zinc-700/50 rounded-[2rem] p-10 text-center shadow-lg">
-              <p className="text-gray-500 dark:text-gray-400 font-medium text-lg">You have no active tasks right now. Accept a request above to get started!</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {activeTasks?.map(task => (
-                <TaskCard 
-                  key={task.id} 
-                  task={task} 
-                  isActive={true} 
-                  onCompleteClick={(t) => setTaskToComplete(t)}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div>
-          <LeaderboardWidget leaders={leaderboard as any || []} />
-        </div>
-      </div>
 
       <CompletionModal 
         isOpen={!!taskToComplete} 
@@ -390,4 +414,3 @@ export default function VolunteerDashboard() {
     </div>
   )
 }
-

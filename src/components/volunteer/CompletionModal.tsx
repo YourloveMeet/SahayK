@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { CheckCircle } from 'lucide-react';
 
 interface CompletionModalProps {
   isOpen: boolean;
@@ -74,9 +75,9 @@ export function CompletionModal({ isOpen, onClose, onSubmit, taskTitle }: Comple
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
       <div className="bg-white dark:bg-zinc-900 rounded-3xl w-full max-w-md shadow-2xl border border-white/20 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-        <div className="p-6 border-b border-gray-100 dark:border-zinc-800 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20">
+        <div className="p-6 border-b border-gray-200 dark:border-zinc-800 bg-gray-50 dark:bg-black">
           <h2 className="text-2xl font-black text-gray-900 dark:text-white">Complete Task</h2>
-          <p className="text-sm text-emerald-700 dark:text-emerald-400 font-medium mt-1">
+          <p className="text-sm text-gray-500 dark:text-gray-400 font-medium mt-1">
             {taskTitle}
           </p>
         </div>
@@ -109,7 +110,7 @@ export function CompletionModal({ isOpen, onClose, onSubmit, taskTitle }: Comple
                 <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 dark:border-zinc-700 rounded-2xl cursor-pointer bg-gray-50 dark:bg-black/20 hover:bg-gray-100 dark:hover:bg-zinc-800/50 transition-colors">
                   <div className="flex flex-col items-center justify-center pt-5 pb-6">
                     <svg className="w-10 h-10 mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                    <p className="mb-2 text-sm text-gray-500 dark:text-gray-400 font-bold"><span className="text-emerald-500">Click to upload</span> or drag and drop</p>
+                    <p className="mb-2 text-sm text-gray-500 dark:text-gray-400 font-bold"><span className="text-gray-900 dark:text-white">Click to upload</span> or drag and drop</p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">PNG, JPG up to 5MB</p>
                   </div>
                   <input type="file" className="hidden" accept="image/*" onChange={handleFileChange} />
@@ -126,7 +127,7 @@ export function CompletionModal({ isOpen, onClose, onSubmit, taskTitle }: Comple
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder="Any details about the completion?"
-              className="w-full p-3 rounded-xl border border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-black/50 focus:ring-2 focus:ring-emerald-500 focus:outline-none dark:text-white min-h-[80px]"
+              className="w-full p-3 rounded-xl border border-gray-200 dark:border-zinc-800 bg-gray-50 dark:bg-black/50 focus:ring-2 focus:ring-gray-900 dark:focus:ring-white focus:outline-none dark:text-white min-h-[80px]"
             />
           </div>
 
@@ -142,7 +143,7 @@ export function CompletionModal({ isOpen, onClose, onSubmit, taskTitle }: Comple
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 py-3 px-4 rounded-xl font-bold text-white bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 shadow-lg shadow-emerald-500/30 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+              className="flex-1 py-3 px-4 rounded-xl font-bold text-white bg-gray-900 dark:bg-white dark:text-gray-900 hover:bg-black dark:hover:bg-gray-100 shadow-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
                 <>
@@ -153,7 +154,10 @@ export function CompletionModal({ isOpen, onClose, onSubmit, taskTitle }: Comple
                   <span>Uploading...</span>
                 </>
               ) : (
-                'Confirm ✅'
+                <>
+                  <CheckCircle className="w-5 h-5" />
+                  <span>Confirm</span>
+                </>
               )}
             </button>
           </div>

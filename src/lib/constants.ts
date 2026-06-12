@@ -1,47 +1,59 @@
+import { 
+  Building2, 
+  IdCard, 
+  Scale, 
+  HeartPulse, 
+  Landmark, 
+  GraduationCap, 
+  Zap, 
+  Building, 
+  MapPin 
+} from 'lucide-react';
+
 export const TASK_CATEGORIES = [
   {
     value: "government_schemes",
     label: "Government Schemes",
-    icon: "🏛️",
+    icon: Building2,
   },
   {
     value: "identity_documents",
     label: "Identity Documents",
-    icon: "🪪",
+    icon: IdCard,
   },
   {
     value: "property_legal",
     label: "Property & Legal",
-    icon: "⚖️",
+    icon: Scale,
   },
   {
     value: "health_insurance",
     label: "Health Insurance",
-    icon: "🏥",
+    icon: HeartPulse,
   },
   {
     value: "banking",
     label: "Banking",
-    icon: "🏦",
+    icon: Landmark,
   },
   {
     value: "education",
     label: "Education",
-    icon: "🎓",
+    icon: GraduationCap,
   },
   {
     value: "utilities",
     label: "Utilities",
-    icon: "⚡",
+    icon: Zap,
   },
   {
     value: "municipal_services",
     label: "Municipal Services",
-    icon: "🏢",
+    icon: Building,
   },
   {
     value: "other",
     label: "Other",
-    icon: "📌",
+    icon: MapPin,
   },
 ];

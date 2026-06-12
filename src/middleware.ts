@@ -39,9 +39,24 @@ export async function middleware(request: NextRequest) {
   }
 
   if (user) {
-    if (isAuthPage) {
-      console.log(`[Middleware] Redirecting logged in user away from auth page to /`)
-      return NextResponse.redirect(new URL('/', request.url))
+    // If the user is authenticated and tries to visit auth pages OR the landing page
+    if (isAuthPage || url.pathname === '/') {
+      console.log(`[Middleware] Redirecting logged in user from ${url.pathname} to their dashboard`)
+      
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+
+      const role = profile?.role
+
+      if (role === 'seeker') return NextResponse.redirect(new URL('/seeker/dashboard', request.url))
+      if (role === 'volunteer') return NextResponse.redirect(new URL('/volunteer/dashboard', request.url))
+      if (role === 'admin') return NextResponse.redirect(new URL('/admin/dashboard', request.url))
+      
+      // Fallback
+      return NextResponse.redirect(new URL('/volunteer/dashboard', request.url))
     }
 
     // Role-based protection

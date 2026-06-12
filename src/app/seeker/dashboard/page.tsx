@@ -1,17 +1,19 @@
-import { LogoutButton } from '@/components/LogoutButton'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import CatalogViewer from './CatalogViewer'
+import { TaskCard } from '@/components/volunteer/TaskCard'
+import { Clock } from 'lucide-react'
 
 export default async function SeekerDashboard() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   
-  // Fetch seeker's recent tasks
-  const { data: tasks } = await supabase
+  // Fetch seeker's active tasks
+  const { data: activeTasks } = await supabase
     .from('tasks')
-    .select('*')
+    .select(`*, profiles!tasks_volunteer_id_fkey(full_name, avatar_url, phone)`)
     .eq('seeker_id', user?.id || '')
+    .in('status', ['open', 'accepted'])
     .order('created_at', { ascending: false })
 
   // Fetch Categories and Services from Database
@@ -40,21 +42,38 @@ export default async function SeekerDashboard() {
 
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-12 overflow-hidden">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-10 border-b border-gray-200 dark:border-zinc-800">
-        <div className="space-y-2">
-          <h1 className="text-4xl font-black text-gray-900 dark:text-white tracking-tight">
-            SahayaK Services
-          </h1>
-          <p className="text-lg text-gray-500 dark:text-gray-400 font-medium">Select a service below to request assistance from a volunteer.</p>
-        </div>
-        <div className="shrink-0">
-          <LogoutButton />
-        </div>
+      {/* Background Orbs */}
+      <div className="fixed top-20 left-0 w-[500px] h-[500px] bg-blue-500/10 dark:bg-blue-600/10 rounded-full blur-[150px] pointer-events-none z-0"></div>
+
+      {/* Bento Box Header */}
+      <div className="relative z-10 backdrop-blur-xl bg-white/60 dark:bg-black/60 p-8 rounded-[1rem] shadow-sm border border-gray-200 dark:border-zinc-800 flex flex-col justify-center">
+        <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+          SahayaK Services
+        </h1>
+        <p className="text-base md:text-lg text-gray-600 dark:text-gray-400 mt-2 font-medium">
+          Select a service below to request assistance from a volunteer.
+        </p>
       </div>
 
+      {/* Active Requests Section */}
+      {activeTasks && activeTasks.length > 0 && (
+        <div className="relative z-10 space-y-4">
+          <h2 className="text-2xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
+             <Clock className="w-6 h-6 text-blue-600 dark:text-blue-500" />
+             Your Active Requests
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {activeTasks.map(task => (
+              <TaskCard key={task.id} task={task as any} />
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Catalog Section via Client Component */}
-      <CatalogViewer categories={categories || []} />
-        
+      <div className="relative z-10">
+        <CatalogViewer categories={categories || []} />
+      </div>
     </div>
   )
 }

@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
-import { Outfit } from "next/font/google";
+import { Nunito } from "next/font/google";
 import "./globals.css";
 import "leaflet/dist/leaflet.css";
 import QueryProvider from "@/components/QueryProvider";
+import { OnboardingPopup } from "@/components/OnboardingPopup";
 
-const outfit = Outfit({
+const nunito = Nunito({
   subsets: ["latin"],
-  variable: "--font-outfit",
+  variable: "--font-nunito",
 });
 
 export const metadata: Metadata = {
@@ -22,11 +23,12 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${outfit.variable} h-full antialiased`}
+      className={`${nunito.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans bg-slate-50 dark:bg-[#0A0A0A] selection:bg-indigo-500/30">
         <QueryProvider>
           {children}
+          <OnboardingPopup />
         </QueryProvider>
       </body>
     </html>
