@@ -1,8 +1,9 @@
 'use client'
 
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import { Database } from '@/types/database.types'
+import { useEffect } from 'react'
 
 type Task = Database['public']['Tables']['tasks']['Row'] & { profiles: { full_name: string } | null }
 
@@ -22,10 +23,21 @@ interface TaskMapProps {
   onTaskSelect?: (task: Task) => void
 }
 
+function MapController({ center }: { center?: [number, number] }) {
+  const map = useMap()
+  useEffect(() => {
+    if (center) {
+      map.flyTo(center, 13) // Zoom level 13 when user location updates
+    }
+  }, [center, map])
+  return null
+}
+
 export default function TaskMap({ tasks, userLocation = [19.0760, 72.8777], onTaskSelect }: TaskMapProps) {
   return (
-    <div className="h-[500px] w-full rounded-xl overflow-hidden border border-gray-200 dark:border-zinc-800 shadow-sm z-0 relative">
+    <div className="h-full w-full overflow-hidden z-0 relative">
       <MapContainer center={userLocation} zoom={12} scrollWheelZoom={true} className="h-full w-full z-0">
+        <MapController center={userLocation} />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

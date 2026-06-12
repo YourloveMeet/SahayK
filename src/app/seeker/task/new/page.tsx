@@ -261,7 +261,7 @@ function NewTaskForm() {
       setError(result.error)
       setIsLoading(false)
     } else {
-      router.push('/seeker/dashboard')
+      router.push('/seeker/tasks')
     }
   }
 
