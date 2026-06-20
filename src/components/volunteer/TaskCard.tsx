@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { TASK_CATEGORIES } from '@/lib/constants';
 import { MapPin, User, Phone } from 'lucide-react';
@@ -8,12 +10,40 @@ interface TaskCardProps {
   isActive?: boolean;
   onCompleteClick?: (task: any) => void;
   onViewClick?: (task: any) => void;
+  onUpdateStatus?: (taskId: string, newStatus: string) => void;
 }
 
-export function TaskCard({ task, distance, isActive, onCompleteClick, onViewClick }: TaskCardProps) {
-  const categoryData = TASK_CATEGORIES.find((c) => c.value === task.category);
+export function TaskCard({ task, distance, isActive, onCompleteClick, onViewClick, onUpdateStatus }: TaskCardProps) {
+  const isErrand = task.category === 'errands' || (task.category === 'other' && task.errand_details !== null);
+  const effectiveCategory = isErrand ? 'errands' : task.category;
+  
+  let currentStatus = task.task_status_detail || 'not_started';
+  if (['arrived', 'delivered'].includes(currentStatus)) currentStatus = 'delivered';
+  
+  const categoryData = TASK_CATEGORIES.find((c) => c.value === effectiveCategory);
   const categoryLabel = categoryData?.label || task.category;
   const CategoryIcon = categoryData?.icon || MapPin;
+
+  // Determine dynamic button action for errands
+  let mainActionLabel = 'Mark as Complete';
+  let mainActionHandler = () => onCompleteClick?.(task);
+  let isFinalStep = true;
+
+  if (isErrand && isActive && onUpdateStatus) {
+    if (currentStatus === 'not_started') {
+      mainActionLabel = 'Head to Shop';
+      mainActionHandler = () => onUpdateStatus(task.id, 'on_the_way_to_shop');
+      isFinalStep = false;
+    } else if (currentStatus === 'on_the_way_to_shop') {
+      mainActionLabel = 'Start Shopping';
+      mainActionHandler = () => onUpdateStatus(task.id, 'shopping_in_progress');
+      isFinalStep = false;
+    } else if (currentStatus === 'shopping_in_progress') {
+      mainActionLabel = 'Head to Delivery';
+      mainActionHandler = () => onUpdateStatus(task.id, 'on_the_way_to_seeker');
+      isFinalStep = false;
+    }
+  }
 
   const isUrgentStyle = task.is_urgent
     ? 'border-gray-900 dark:border-white shadow-md shadow-black/10 dark:shadow-white/10 ring-1 ring-gray-900 dark:ring-white'
@@ -95,6 +125,66 @@ export function TaskCard({ task, distance, isActive, onCompleteClick, onViewClic
         </div>
       </div>
 
+      {isErrand && (
+        <div className="mt-5 pt-5 border-t border-gray-200 dark:border-zinc-800">
+          <h4 className="text-[11px] font-black text-indigo-500/80 dark:text-indigo-400/80 uppercase tracking-[0.2em] mb-4">Task & Shopping Status</h4>
+          <div className="flex items-start justify-between relative px-2 pt-2">
+            {/* Background Line */}
+            <div className="absolute top-4 left-8 right-8 h-1 bg-gray-200 dark:bg-zinc-800 -translate-y-1/2 z-0 rounded-full"></div>
+            
+            {(() => {
+              const visualSteps = [
+                { id: 'not_started', label: 'Not Started' },
+                { id: 'on_the_way_to_shop', label: 'Going to shop' },
+                { id: 'shopping_in_progress', label: 'Shopping' },
+                { id: 'on_the_way_to_seeker', label: 'On the way' },
+                { id: 'delivered', label: 'Delivered', aliases: ['arrived', 'delivered'] }
+              ];
+              const currentIndex = visualSteps.findIndex(s => s.id === currentStatus || s.aliases?.includes(currentStatus));
+              const safeIndex = currentIndex === -1 ? 0 : currentIndex;
+
+              return (
+                <>
+                  {/* Active Line */}
+                  <div 
+                    className="absolute top-4 left-8 h-1 bg-indigo-500 -translate-y-1/2 z-0 rounded-full transition-all duration-500"
+                    style={{ width: `calc(${safeIndex / (visualSteps.length - 1)} * (100% - 4rem))` }}
+                  ></div>
+
+                  {visualSteps.map((step, idx) => {
+                    const isCompleted = idx <= safeIndex;
+                    const isActiveStep = idx === safeIndex;
+                    const isNext = idx === safeIndex + 1;
+                    const canClick = isActive && (isNext || isCompleted); // volunteers can click next step or go back
+
+                    return (
+                      <div 
+                        key={step.id} 
+                        className={`relative z-10 flex flex-col items-center gap-2 w-12 ${canClick ? 'cursor-pointer hover:opacity-80' : ''}`}
+                        onClick={() => {
+                          if (canClick && onUpdateStatus && isActive) {
+                            onUpdateStatus(task.id, step.id);
+                          }
+                        }}
+                      >
+                        <div className={`w-4 h-4 rounded-full border-2 transition-all duration-300 shrink-0 ${
+                          isCompleted 
+                            ? 'bg-indigo-500 border-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]' 
+                            : 'bg-white dark:bg-zinc-900 border-gray-300 dark:border-zinc-700'
+                        } ${isActiveStep ? 'scale-125' : ''}`} />
+                        <span className={`text-[9px] font-bold ${isActiveStep ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-400'} text-center leading-tight`}>
+                          {step.label}
+                        </span>
+                      </div>
+                    )
+                  })}
+                </>
+              );
+            })()}
+          </div>
+        </div>
+      )}
+
       {isActive && task.latitude && task.longitude && (
         <a
           href={`https://www.google.com/maps/dir/?api=1&destination=${task.latitude},${task.longitude}`}
@@ -107,15 +197,25 @@ export function TaskCard({ task, distance, isActive, onCompleteClick, onViewClic
         </a>
       )}
 
-      {isActive && onCompleteClick && (
+      {isActive && (onCompleteClick || onUpdateStatus) && (
         <button
-          onClick={() => onCompleteClick(task)}
-          className="mt-4 w-full py-2.5 bg-gray-900 dark:bg-white hover:bg-black dark:hover:bg-gray-100 text-white dark:text-gray-900 font-bold rounded-xl shadow-sm transition-all transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
+          onClick={mainActionHandler}
+          className={`mt-4 w-full py-2.5 font-bold rounded-xl shadow-sm transition-all transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 ${
+            isFinalStep 
+              ? 'bg-gray-900 dark:bg-white hover:bg-black dark:hover:bg-gray-100 text-white dark:text-gray-900' 
+              : 'bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-700 dark:hover:bg-indigo-600 text-white'
+          }`}
         >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-          </svg>
-          Mark as Complete
+          {isFinalStep ? (
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          ) : (
+            <svg className="w-5 h-5 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+            </svg>
+          )}
+          {mainActionLabel}
         </button>
       )}
 

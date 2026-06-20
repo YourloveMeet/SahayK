@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -265,6 +265,8 @@ export type Database = {
           updated_at: string | null
           verified_at: string | null
           volunteer_id: string | null
+          task_status_detail: string | null
+          errand_details: string | null
         }
         Insert: {
           accepted_at?: string | null
@@ -285,6 +287,8 @@ export type Database = {
           updated_at?: string | null
           verified_at?: string | null
           volunteer_id?: string | null
+          task_status_detail?: string | null
+          errand_details?: string | null
         }
         Update: {
           accepted_at?: string | null
@@ -305,6 +309,8 @@ export type Database = {
           updated_at?: string | null
           verified_at?: string | null
           volunteer_id?: string | null
+          task_status_detail?: string | null
+          errand_details?: string | null
         }
         Relationships: [
           {
@@ -323,6 +329,23 @@ export type Database = {
           },
         ]
       }
+      ngo_profiles: { Row: any, Insert: any, Update: any, Relationships: any[] }
+      ngo_residents: { Row: any, Insert: any, Update: any, Relationships: any[] }
+      resident_medicines: { Row: any, Insert: any, Update: any, Relationships: any[] }
+      resident_reminders: { Row: any, Insert: any, Update: any, Relationships: any[] }
+      service_categories: { Row: any, Insert: any, Update: any, Relationships: any[] }
+      services: { Row: any, Insert: any, Update: any, Relationships: any[] }
+      resident_care_notes: { Row: any, Insert: any, Update: any, Relationships: any[] }
+      resident_documents: { Row: any, Insert: any, Update: any, Relationships: any[] }
+      resident_visitor_log: { Row: any, Insert: any, Update: any, Relationships: any[] }
+      resident_incidents: { Row: any, Insert: any, Update: any, Relationships: any[] }
+      ngo_caretakers: { Row: any, Insert: any, Update: any, Relationships: any[] }
+      ngo_caretaker_shifts: { Row: any, Insert: any, Update: any, Relationships: any[] }
+      ngo_expenses: { Row: any, Insert: any, Update: any, Relationships: any[] }
+      ngo_referrals: { Row: any, Insert: any, Update: any, Relationships: any[] }
+      ngo_inquiries: { Row: any, Insert: any, Update: any, Relationships: any[] }
+      ngo_needs: { Row: any, Insert: any, Update: any, Relationships: any[] }
+      need_interests: { Row: any, Insert: any, Update: any, Relationships: any[] }
     }
     Views: {
       [_ in never]: never

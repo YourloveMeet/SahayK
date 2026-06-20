@@ -19,6 +19,23 @@ export async function createTaskAction(formData: FormData) {
   const latStr = formData.get('latitude') as string
   const lngStr = formData.get('longitude') as string
 
+  // Errand specific
+  const errandDetailsStr = formData.get('errand_details') as string
+  let errandDetails = null
+  let taskStatusDetail = null
+  let finalCategory = category
+  if (errandDetailsStr) {
+    try {
+      errandDetails = JSON.parse(errandDetailsStr)
+      taskStatusDetail = 'not_started'
+      if (finalCategory === 'errands') {
+         finalCategory = 'other' // bypass DB check constraint
+      }
+    } catch (e) {
+      console.error('Failed to parse errand details', e)
+    }
+  }
+
   if (!title || !description || !category || !latStr || !lngStr) {
     return { error: 'Missing required fields' }
   }
@@ -30,12 +47,14 @@ export async function createTaskAction(formData: FormData) {
     seeker_id: user.id,
     title,
     description,
-    category,
+    category: finalCategory,
     is_urgent: isUrgent,
     latitude,
     longitude,
     area_name: areaName || null,
-    status: 'open'
+    status: 'open',
+    errand_details: errandDetails,
+    task_status_detail: taskStatusDetail
   })
 
   if (error) {

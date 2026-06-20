@@ -19,7 +19,7 @@ const registerSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
   confirmPassword: z.string(),
-  role: z.enum(['seeker', 'volunteer']),
+  role: z.enum(['seeker', 'volunteer', 'ngo_admin', 'donor']),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
   path: ["confirmPassword"],
@@ -200,6 +200,32 @@ export default function RegisterPage() {
                   </div>
                   <h3 className="text-gray-900 font-bold text-lg peer-checked:text-white transition-colors">Volunteer</h3>
                   <p className="text-gray-500 text-sm font-medium mt-1 peer-checked:text-gray-300 transition-colors">I want to help others</p>
+                </div>
+              </label>
+
+              {/* NGO Admin Card */}
+              <label className="relative group cursor-pointer">
+                <input type="radio" value="ngo_admin" className="peer sr-only" {...register('role')} />
+                <div className="absolute inset-0 bg-gray-900 rounded-2xl opacity-0 peer-checked:opacity-100 transition-opacity duration-300 shadow-xl"></div>
+                <div className="relative flex flex-col p-5 h-full bg-white border-2 border-gray-200 rounded-2xl peer-checked:border-gray-900 transition-all hover:border-gray-400 group-active:scale-[0.98]">
+                  <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mb-4 peer-checked:bg-white/10 transition-colors">
+                    <svg className="w-5 h-5 text-gray-500 peer-checked:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+                  </div>
+                  <h3 className="text-gray-900 font-bold text-lg peer-checked:text-white transition-colors">NGO / Admin</h3>
+                  <p className="text-gray-500 text-sm font-medium mt-1 peer-checked:text-gray-300 transition-colors">Manage residents</p>
+                </div>
+              </label>
+
+              {/* Donor Card */}
+              <label className="relative group cursor-pointer">
+                <input type="radio" value="donor" className="peer sr-only" {...register('role')} />
+                <div className="absolute inset-0 bg-gray-900 rounded-2xl opacity-0 peer-checked:opacity-100 transition-opacity duration-300 shadow-xl"></div>
+                <div className="relative flex flex-col p-5 h-full bg-white border-2 border-gray-200 rounded-2xl peer-checked:border-gray-900 transition-all hover:border-gray-400 group-active:scale-[0.98]">
+                  <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mb-4 peer-checked:bg-white/10 transition-colors">
+                    <svg className="w-5 h-5 text-gray-500 peer-checked:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                  </div>
+                  <h3 className="text-gray-900 font-bold text-lg peer-checked:text-white transition-colors">Donor</h3>
+                  <p className="text-gray-500 text-sm font-medium mt-1 peer-checked:text-gray-300 transition-colors">Support NGOs & browse needs</p>
                 </div>
               </label>
 

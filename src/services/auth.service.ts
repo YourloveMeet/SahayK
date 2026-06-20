@@ -28,6 +28,8 @@ export async function loginAction(formData: FormData) {
   if (profile?.role === 'seeker') redirect('/seeker/dashboard')
   if (profile?.role === 'volunteer') redirect('/volunteer/dashboard')
   if (profile?.role === 'admin') redirect('/admin/dashboard')
+  if (profile?.role === 'ngo_admin') redirect('/ngo/dashboard')
+  if (profile?.role === 'donor') redirect('/donor/dashboard')
 
   redirect('/')
 }
@@ -82,6 +84,8 @@ export async function signupAction(formData: FormData) {
 
     if (role === 'seeker') redirect('/seeker/dashboard')
     if (role === 'volunteer') redirect('/volunteer/dashboard')
+    if (role === 'ngo_admin') redirect('/ngo/dashboard')
+    if (role === 'donor') redirect('/donor/dashboard')
   } else if (authData.user && !authData.session) {
     // Email confirmation required
     return { success: 'Please check your email to confirm your account.' }

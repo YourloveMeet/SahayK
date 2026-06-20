@@ -29,7 +29,9 @@ export async function middleware(request: NextRequest) {
   
   const isProtectedRoute = url.pathname.startsWith('/seeker') || 
                            url.pathname.startsWith('/volunteer') || 
-                           url.pathname.startsWith('/admin')
+                           url.pathname.startsWith('/admin') ||
+                           url.pathname.startsWith('/ngo') ||
+                           url.pathname.startsWith('/donor')
 
   console.log(`[Middleware] Path: ${url.pathname}, User: ${user?.email}`)
 
@@ -54,6 +56,8 @@ export async function middleware(request: NextRequest) {
       if (role === 'seeker') return NextResponse.redirect(new URL('/seeker/dashboard', request.url))
       if (role === 'volunteer') return NextResponse.redirect(new URL('/volunteer/dashboard', request.url))
       if (role === 'admin') return NextResponse.redirect(new URL('/admin/dashboard', request.url))
+      if (role === 'ngo_admin') return NextResponse.redirect(new URL('/ngo/dashboard', request.url))
+      if (role === 'donor') return NextResponse.redirect(new URL('/donor/dashboard', request.url))
       
       // Fallback
       return NextResponse.redirect(new URL('/volunteer/dashboard', request.url))
@@ -76,6 +80,12 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL('/unauthorized', request.url))
       }
       if (url.pathname.startsWith('/admin') && role !== 'admin') {
+        return NextResponse.redirect(new URL('/unauthorized', request.url))
+      }
+      if (url.pathname.startsWith('/ngo') && role !== 'ngo_admin') {
+        return NextResponse.redirect(new URL('/unauthorized', request.url))
+      }
+      if (url.pathname.startsWith('/donor') && role !== 'donor') {
         return NextResponse.redirect(new URL('/unauthorized', request.url))
       }
     }

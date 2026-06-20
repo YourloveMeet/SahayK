@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, Suspense } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { createTaskAction } from '@/services/task.service'
@@ -15,12 +15,19 @@ import DynamicLocationPicker from '@/components/map/DynamicLocationPicker'
 
 const taskSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters'),
-  description: z.string().min(10, 'Description must be at least 10 characters'),
+  description: z.string().min(2, 'Description must be at least 2 characters'),
   category: z.string().min(1, 'Please select a category'),
   isUrgent: z.boolean(),
   areaName: z.string().optional(),
   latitude: z.number({ message: 'Please select a location on the map' }),
   longitude: z.number({ message: 'Please select a location on the map' }),
+  errandItems: z.array(z.object({
+    name: z.string().min(1, 'Item name is required'),
+    quantity: z.number().min(1, 'Quantity must be at least 1'),
+    notes: z.string().optional()
+  })).optional(),
+  preferredShop: z.string().optional(),
+  estimatedBudget: z.number().optional()
 })
 
 function NewTaskForm() {
@@ -50,16 +57,34 @@ function NewTaskForm() {
 
   const {
     register,
+    control,
     handleSubmit,
     setValue,
     getValues,
+    watch,
     formState: { errors },
   } = useForm<z.infer<typeof taskSchema>>({
     resolver: zodResolver(taskSchema),
     defaultValues: {
       category: prefillCategory || '',
+      errandItems: [{ name: '', quantity: 1, notes: '' }]
     }
   })
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "errandItems"
+  })
+
+  const selectedCategory = watch('category')
+  const isErrand = selectedCategory === 'errands'
+
+  // Pre-fill description if it's an errand to avoid validation errors
+  useEffect(() => {
+    if (isErrand && !getValues('description')) {
+      setValue('description', 'General Task Details', { shouldValidate: true })
+    }
+  }, [isErrand, setValue, getValues])
 
   // Fetch categories and prefill title if serviceId is provided
   useEffect(() => {
@@ -250,6 +275,15 @@ function NewTaskForm() {
     formData.append('latitude', data.latitude.toString())
     formData.append('longitude', data.longitude.toString())
     
+    if (isErrand) {
+      const errandDetails = {
+        items: data.errandItems,
+        preferred_shop: data.preferredShop,
+        estimated_budget: data.estimatedBudget
+      }
+      formData.append('errand_details', JSON.stringify(errandDetails))
+    }
+    
     // Pass the specific service ID to the backend if they came from the catalog
     if (prefillServiceId) {
       formData.append('service_id', prefillServiceId)
@@ -349,12 +383,69 @@ function NewTaskForm() {
                 <option value="">Select a category...</option>
                 {categories.map((cat) => (
                   <option key={cat.id} value={cat.id}>
-                    {cat.title}
+                    {cat.title.replace(/Errands/gi, 'Shopping')}
                   </option>
                 ))}
               </select>
               {errors.category && <p className="text-red-500 text-sm font-medium">{errors.category.message}</p>}
             </div>
+
+            {isErrand && (
+              <div className="relative overflow-hidden p-8 bg-white dark:bg-zinc-900 border border-indigo-100 dark:border-zinc-800 rounded-3xl shadow-sm space-y-8">
+                {/* Decorative background element */}
+                <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50/50 dark:bg-indigo-900/10 rounded-full blur-[60px] pointer-events-none -translate-y-1/2 translate-x-1/3"></div>
+                
+                <div className="relative z-10 border-b border-indigo-50 dark:border-zinc-800 pb-4">
+                  <h3 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">Task Requirements</h3>
+                  <p className="text-gray-500 dark:text-gray-400 font-medium mt-1">Please list the items you need and any preferred locations.</p>
+                </div>
+                
+                <div className="relative z-10 space-y-5">
+                  <Label className="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Shopping List / Items Needed</Label>
+                  
+                  <div className="space-y-3">
+                    {fields.map((field, index) => (
+                      <div key={field.id} className="flex flex-col sm:flex-row gap-3 items-start sm:items-center bg-gray-50 dark:bg-black/20 p-3 rounded-2xl border border-gray-100 dark:border-zinc-800/50 transition-all hover:border-indigo-200 dark:hover:border-indigo-800/50">
+                        <div className="flex-1 w-full relative">
+                          <Input placeholder="Item Name (e.g. Milk 1L)" {...register(`errandItems.${index}.name`)} className="bg-white dark:bg-black/40 border-0 shadow-sm focus-visible:ring-indigo-500 h-12 rounded-xl" />
+                          {errors.errandItems?.[index]?.name && <p className="absolute -bottom-5 left-2 text-[10px] font-bold text-red-500">{errors.errandItems[index]?.name?.message}</p>}
+                        </div>
+                        
+                        <div className="w-full sm:w-28 shrink-0">
+                          <Input type="number" min="1" placeholder="Qty" {...register(`errandItems.${index}.quantity` as const, { valueAsNumber: true })} className="bg-white dark:bg-black/40 border-0 shadow-sm focus-visible:ring-indigo-500 h-12 rounded-xl text-center" />
+                        </div>
+                        
+                        <div className="flex-1 w-full">
+                          <Input placeholder="Notes (optional)" {...register(`errandItems.${index}.notes`)} className="bg-white dark:bg-black/40 border-0 shadow-sm focus-visible:ring-indigo-500 h-12 rounded-xl" />
+                        </div>
+                        
+                        <Button type="button" variant="ghost" onClick={() => remove(index)} className="w-full sm:w-auto h-12 rounded-xl text-red-500 hover:text-red-700 hover:bg-red-100 dark:hover:bg-red-900/30 font-bold">
+                          Remove
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+
+                  <Button type="button" variant="outline" onClick={() => append({ name: '', quantity: 1, notes: '' })} className="mt-2 h-12 px-6 rounded-xl border-indigo-200 text-indigo-700 dark:border-indigo-800 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 font-bold transition-colors">
+                    + Add Another Item
+                  </Button>
+                </div>
+
+                <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 pt-6 border-t border-indigo-50 dark:border-zinc-800">
+                  <div className="space-y-3">
+                    <Label htmlFor="preferredShop" className="text-sm font-bold text-gray-700 dark:text-gray-300">Preferred Store / Location</Label>
+                    <Input id="preferredShop" placeholder="e.g. Local Pharmacy or Supermarket" {...register('preferredShop')} className="h-14 bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-zinc-800 rounded-xl px-4 focus-visible:ring-indigo-500 shadow-sm" />
+                  </div>
+                  <div className="space-y-3">
+                    <Label htmlFor="estimatedBudget" className="text-sm font-bold text-gray-700 dark:text-gray-300">Estimated Budget (INR)</Label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">₹</span>
+                      <Input id="estimatedBudget" type="number" placeholder="500" {...register('estimatedBudget', { valueAsNumber: true })} className="h-14 bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-zinc-800 rounded-xl pl-8 focus-visible:ring-indigo-500 shadow-sm" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="space-y-3 relative z-[9999]">
               <div className="flex items-center justify-between">

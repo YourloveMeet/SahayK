@@ -98,6 +98,44 @@ export function TaskDetailsModal({ task, distance, isOpen, onClose, onAccept }: 
             </div>
           </div>
 
+          {(task.category === 'errands' || (task.category === 'other' && task.errand_details)) && task.errand_details && (
+            <div>
+              <p className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Errand Details</p>
+              <div className="p-5 rounded-2xl bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 shadow-inner space-y-4">
+                <div>
+                  <h4 className="text-sm font-bold text-gray-900 dark:text-white mb-2">Items to purchase/pickup:</h4>
+                  <ul className="space-y-2">
+                    {task.errand_details.items?.map((item: any, i: number) => (
+                      <li key={i} className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-zinc-900 rounded-xl border border-gray-100 dark:border-zinc-700">
+                        <div className="mt-0.5"><div className="w-4 h-4 rounded border-2 border-indigo-400 dark:border-indigo-600 bg-white dark:bg-zinc-800"></div></div>
+                        <div className="flex-1">
+                          <p className="font-bold text-gray-900 dark:text-white">{item.name} <span className="text-indigo-600 dark:text-indigo-400 font-black px-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-md ml-2">x{item.quantity}</span></p>
+                          {item.notes && <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{item.notes}</p>}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                {(task.errand_details.preferred_shop || task.errand_details.estimated_budget) && (
+                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-100 dark:border-zinc-700 mt-4">
+                    {task.errand_details.preferred_shop && (
+                      <div>
+                        <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">Preferred Shop</p>
+                        <p className="font-medium text-gray-900 dark:text-white">{task.errand_details.preferred_shop}</p>
+                      </div>
+                    )}
+                    {task.errand_details.estimated_budget && (
+                      <div>
+                        <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">Est. Budget</p>
+                        <p className="font-bold text-emerald-600 dark:text-emerald-400">₹{task.errand_details.estimated_budget}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           <div>
             <p className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Description</p>
             <div className="p-5 rounded-2xl bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 shadow-inner">

@@ -7,7 +7,8 @@ import {
   GraduationCap, 
   Zap, 
   Building, 
-  MapPin 
+  MapPin,
+  ShoppingBag
 } from 'lucide-react';
 
 export const TASK_CATEGORIES = [
@@ -55,5 +56,10 @@ export const TASK_CATEGORIES = [
     value: "other",
     label: "Other",
     icon: MapPin,
+  },
+  {
+    value: "errands",
+    label: "Daily Essentials & Errands",
+    icon: ShoppingBag,
   },
 ];

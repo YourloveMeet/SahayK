@@ -41,9 +41,18 @@ export default function CatalogViewer({ categories }: { categories: any[] }) {
           };
 
           // Sort services by sort_order
-          const sortedServices = [...(category.services || [])].sort((a, b) => a.sort_order - b.sort_order);
+          let sortedServices = [...(category.services || [])].sort((a, b) => a.sort_order - b.sort_order);
 
-          if (sortedServices.length === 0) return null;
+          if (sortedServices.length === 0) {
+            sortedServices = [{
+              id: `general-${category.id}`,
+              category_id: category.id,
+              title: `General ${category.title} Request`,
+              estimated_time: 'Varies',
+              steps: ['Describe what you need', 'A volunteer will be matched', 'Get help quickly'],
+              documents_needed: []
+            }];
+          }
 
           return (
             <div key={category.id} className="space-y-6">

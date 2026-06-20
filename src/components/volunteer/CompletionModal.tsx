@@ -7,9 +7,10 @@ interface CompletionModalProps {
   onClose: () => void;
   onSubmit: (note: string, proofUrl: string) => void;
   taskTitle: string;
+  isErrand?: boolean;
 }
 
-export function CompletionModal({ isOpen, onClose, onSubmit, taskTitle }: CompletionModalProps) {
+export function CompletionModal({ isOpen, onClose, onSubmit, taskTitle, isErrand }: CompletionModalProps) {
   const [note, setNote] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -34,7 +35,7 @@ export function CompletionModal({ isOpen, onClose, onSubmit, taskTitle }: Comple
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file) {
-      setError('Please provide an image of the final documents as proof.');
+      setError(isErrand ? 'Please provide a photo of the delivered items or receipt as proof.' : 'Please provide an image of the final documents as proof.');
       return;
     }
 
@@ -91,7 +92,7 @@ export function CompletionModal({ isOpen, onClose, onSubmit, taskTitle }: Comple
 
           <div>
             <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
-              Final Documents Image (Required)
+              {isErrand ? 'Delivery Photo / Receipt (Required)' : 'Final Documents Image (Required)'}
             </label>
             
             {previewUrl ? (
@@ -121,12 +122,12 @@ export function CompletionModal({ isOpen, onClose, onSubmit, taskTitle }: Comple
 
           <div>
             <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
-              Completion Note (Optional)
+              {isErrand ? 'Delivery / Cost Note (Optional)' : 'Completion Note (Optional)'}
             </label>
             <textarea
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              placeholder="Any details about the completion?"
+              placeholder={isErrand ? "Any details about the delivery or final cost?" : "Any details about the completion?"}
               className="w-full p-3 rounded-xl border border-gray-200 dark:border-zinc-800 bg-gray-50 dark:bg-black/50 focus:ring-2 focus:ring-gray-900 dark:focus:ring-white focus:outline-none dark:text-white min-h-[80px]"
             />
           </div>

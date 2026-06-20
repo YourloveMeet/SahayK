@@ -129,6 +129,19 @@ export default function VolunteerDashboard() {
     }
   })
 
+  const updateTaskStatusMutation = useMutation({
+    mutationFn: async ({ taskId, statusDetail }: { taskId: string, statusDetail: string }) => {
+      const { error } = await supabase
+        .from('tasks')
+        .update({ task_status_detail: statusDetail })
+        .eq('id', taskId)
+      if (error) throw error
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks', 'active'] })
+    }
+  })
+
   const completeTaskMutation = useMutation({
     mutationFn: async ({ taskId, note, proofUrl, isUrgent }: { taskId: string, note: string, proofUrl: string, isUrgent: boolean }) => {
       // Complete the task
@@ -215,7 +228,12 @@ export default function VolunteerDashboard() {
   }
 
   const filteredTasks = openTasks?.filter(task => {
-    if (category !== 'all' && task.category !== category) return false
+    let effectiveCategory = task.category
+    if (task.category === 'other' && task.errand_details) {
+      effectiveCategory = 'errands'
+    }
+
+    if (category !== 'all' && effectiveCategory !== category) return false
     if (isUrgentOnly && !task.is_urgent) return false
     
     // Only filter by distance if user location is set
@@ -310,10 +328,51 @@ export default function VolunteerDashboard() {
           </div>
 
           {/* Right Column: Map & Active/Leaderboard (8 Columns) */}
-          <div className="xl:col-span-8 flex flex-col gap-6 h-[800px]">
+          <div className="xl:col-span-8 flex flex-col gap-6 h-[850px]">
             
-            {/* Top Right: Massive Interactive Map */}
-            <div className="flex-1 min-h-[350px] relative rounded-[1rem] overflow-hidden shadow-sm hover:shadow-md transition-all border border-gray-200 dark:border-zinc-800 flex flex-col bg-white dark:bg-black">
+            {/* Top Right: Active Tasks & Leaderboard Split */}
+            <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-0">
+              
+              {/* Active Tasks Panel */}
+              <div className="backdrop-blur-xl bg-white/60 dark:bg-black/60 rounded-[1rem] border border-gray-200 dark:border-zinc-800 shadow-sm transition-all hover:shadow-md flex flex-col overflow-hidden h-full">
+                <div className="p-5 border-b border-gray-200 dark:border-zinc-800 bg-white/90 dark:bg-black/90 backdrop-blur-md">
+                   <h2 className="text-xl font-black text-gray-900 dark:text-white flex items-center justify-between">
+                     <span>My Active Tasks</span>
+                     <span className="bg-gray-900 text-white dark:bg-white dark:text-gray-900 py-1 px-3 rounded-full text-sm font-bold shadow-sm">
+                        {activeTasks?.length || 0}
+                     </span>
+                   </h2>
+                </div>
+                <div className="flex-1 overflow-y-auto p-5">
+                  {activeTasks?.length === 0 ? (
+                    <div className="flex items-center justify-center h-full text-center p-6">
+                      <p className="text-gray-500 dark:text-gray-400 font-medium text-sm">You have no active tasks right now. Accept a request to get started!</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {activeTasks?.map(task => (
+                        <TaskCard 
+                          key={task.id} 
+                          task={task} 
+                          isActive={true} 
+                          onCompleteClick={(t) => setTaskToComplete(t)}
+                          onUpdateStatus={(taskId, newStatus) => updateTaskStatusMutation.mutate({ taskId, statusDetail: newStatus })}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Leaderboard Panel */}
+              <div className="h-full overflow-hidden">
+                <LeaderboardWidget leaders={leaderboard as any || []} />
+              </div>
+
+            </div>
+
+            {/* Bottom Right: Compact Interactive Map */}
+            <div className="h-[280px] shrink-0 relative rounded-[1rem] overflow-hidden shadow-sm hover:shadow-md transition-all border border-gray-200 dark:border-zinc-800 flex flex-col bg-white dark:bg-black">
               <div className="flex-1 w-full relative">
                 <DynamicTaskMap 
                   tasks={filteredTasks || []} 
@@ -344,46 +403,6 @@ export default function VolunteerDashboard() {
                 </div>
               )}
             </div>
-
-            {/* Bottom Right: Active Tasks & Leaderboard Split */}
-            <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-0">
-              
-              {/* Active Tasks Panel */}
-              <div className="backdrop-blur-xl bg-white/60 dark:bg-black/60 rounded-[1rem] border border-gray-200 dark:border-zinc-800 shadow-sm transition-all hover:shadow-md flex flex-col overflow-hidden h-full">
-                <div className="p-5 border-b border-gray-200 dark:border-zinc-800 bg-white/90 dark:bg-black/90 backdrop-blur-md">
-                   <h2 className="text-xl font-black text-gray-900 dark:text-white flex items-center justify-between">
-                     <span>My Active Tasks</span>
-                     <span className="bg-gray-900 text-white dark:bg-white dark:text-gray-900 py-1 px-3 rounded-full text-sm font-bold shadow-sm">
-                        {activeTasks?.length || 0}
-                     </span>
-                   </h2>
-                </div>
-                <div className="flex-1 overflow-y-auto p-5">
-                  {activeTasks?.length === 0 ? (
-                    <div className="flex items-center justify-center h-full text-center p-6">
-                      <p className="text-gray-500 dark:text-gray-400 font-medium text-sm">You have no active tasks right now. Accept a request to get started!</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {activeTasks?.map(task => (
-                        <TaskCard 
-                          key={task.id} 
-                          task={task} 
-                          isActive={true} 
-                          onCompleteClick={(t) => setTaskToComplete(t)}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Leaderboard Panel */}
-              <div className="h-full overflow-hidden">
-                <LeaderboardWidget leaders={leaderboard as any || []} />
-              </div>
-
-            </div>
           </div>
         </div>
       )}
@@ -392,6 +411,7 @@ export default function VolunteerDashboard() {
         isOpen={!!taskToComplete} 
         onClose={() => setTaskToComplete(null)} 
         taskTitle={taskToComplete?.title || ''}
+        isErrand={taskToComplete?.category === 'errands' || (taskToComplete?.category === 'other' && taskToComplete?.errand_details !== null)}
         onSubmit={(note, proofUrl) => {
           if (taskToComplete) {
             completeTaskMutation.mutate({ 
