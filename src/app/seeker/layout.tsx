@@ -76,7 +76,7 @@ export default function SeekerLayout({
         </div>
       </header>
 
-      <main className="flex-1 w-full relative">
+      <main className="flex-1 w-full relative overflow-x-hidden">
         {children}
       </main>
     </div>
@@ -97,7 +97,7 @@ export default function SeekerLayout({
         </div>
       </header>
 
-      <main className="flex-1 w-full relative">
+      <main className="flex-1 w-full relative overflow-x-hidden">
         {children}
       </main>
 

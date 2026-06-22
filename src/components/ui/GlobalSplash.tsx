@@ -62,8 +62,7 @@ export function GlobalSplash() {
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="fixed z-[99999] bg-[#0A0A0A] flex flex-col items-center justify-center pointer-events-auto"
-          style={{ top: '-20px', left: '-20px', right: '-20px', bottom: '-100px' }}
+          className="fixed inset-0 z-[99999] bg-[#0A0A0A] flex flex-col items-center justify-center pointer-events-auto w-full h-full"
         >
           <DominosLoader />
           

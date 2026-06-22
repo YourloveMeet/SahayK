@@ -75,7 +75,7 @@ export default function DonorLayout({ children }: { children: React.ReactNode })
       )}
 
       {/* Main Content */}
-      <main className={`flex-1 w-full relative ${isMobile ? 'pt-16 pb-20' : ''} h-screen overflow-y-auto`}>
+      <main className={`flex-1 w-full relative overflow-x-hidden ${isMobile ? 'pt-16 pb-20' : ''} h-screen overflow-y-auto`}>
         {children}
       </main>
 

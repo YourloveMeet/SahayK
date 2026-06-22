@@ -26,7 +26,7 @@ export default function RootLayout({
       lang="en"
       className={`${nunito.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col font-sans bg-slate-50 dark:bg-[#0A0A0A] selection:bg-indigo-500/30">
+      <body className="min-h-full flex flex-col font-sans bg-slate-50 dark:bg-[#0A0A0A] selection:bg-indigo-500/30 overflow-x-hidden w-full">
         <QueryProvider>
           <GlobalSplash />
           {children}
