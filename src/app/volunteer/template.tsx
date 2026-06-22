@@ -21,7 +21,7 @@ export default function Template({ children }: { children: React.ReactNode }) {
         duration: 0.4, 
         ease: [0.25, 0.1, 0.25, 1.0], // smooth ease-out curve
       }}
-      className="flex flex-col flex-1 w-full h-full min-h-screen"
+      className="w-full h-full min-h-screen"
     >
       {children}
     </motion.div>

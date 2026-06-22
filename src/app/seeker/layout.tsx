@@ -29,7 +29,7 @@ export default function SeekerLayout({
   ]
 
   const DesktopLayout = (
-    <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-[#0A0A0A]">
+    <div className="flex min-h-screen flex-col overflow-x-hidden bg-slate-50 dark:bg-[#0A0A0A]">
       {/* Cinematic Navbar */}
       <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/70 dark:bg-black/70 border-b border-gray-200 dark:border-zinc-800 shadow-sm">
         <div className="max-w-[1600px] mx-auto px-4 md:px-8 h-20 flex items-center justify-between gap-4">
@@ -83,7 +83,7 @@ export default function SeekerLayout({
   )
 
   const MobileLayout = (
-    <div className={`flex min-h-screen flex-col bg-slate-50 dark:bg-[#0A0A0A] ${showBottomNav ? 'pb-20' : ''}`}>
+    <div className={`flex min-h-screen flex-col overflow-x-hidden bg-slate-50 dark:bg-[#0A0A0A] ${showBottomNav ? 'pb-28' : ''}`}>
       <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/70 dark:bg-black/70 border-b border-gray-200 dark:border-zinc-800">
         <div className="px-4 h-16 flex items-center justify-between">
           <Link href="/seeker/dashboard" className="flex items-center gap-2">
@@ -101,13 +101,15 @@ export default function SeekerLayout({
         {children}
       </main>
 
-      <nav className={`fixed bottom-0 left-0 right-0 z-50 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-xl border-t border-gray-200 dark:border-zinc-800 px-8 py-3 flex justify-between items-center pb-6 transition-all duration-700 ease-out ${showBottomNav ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'}`}>
+      <nav className={`fixed bottom-6 left-4 right-4 z-50 bg-zinc-950 border border-zinc-800 h-16 rounded-2xl px-6 flex justify-between items-center transition-all duration-700 ease-out shadow-2xl shadow-black/40 ${showBottomNav ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'}`}>
         {links.map(link => {
           const isActive = pathname === link.href
           const Icon = link.icon
           return (
-             <Link key={link.href} href={link.href} className={`flex flex-col items-center gap-1 transition-colors ${isActive ? 'text-blue-600 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400'}`}>
-               <Icon className={`w-6 h-6 ${isActive ? 'fill-blue-100 dark:fill-blue-900/30 stroke-[2.5px]' : 'stroke-2'}`} />
+             <Link key={link.href} href={link.href} className={`flex flex-col items-center justify-center gap-1 transition-colors w-16 ${isActive ? 'text-white' : 'text-zinc-500 hover:text-zinc-400'}`}>
+               <div className={`p-1 rounded-xl transition-all ${isActive ? 'bg-zinc-800' : 'bg-transparent'}`}>
+                 <Icon className={`w-5 h-5 ${isActive ? 'stroke-[2.5px]' : 'stroke-2'}`} />
+               </div>
                <span className="text-[10px] font-bold">{link.label}</span>
              </Link>
           )

@@ -142,14 +142,16 @@ export default function NGOLayout({
       )}
 
       {/* Main Content */}
-      <main className={`flex-1 w-full relative ${isSetup ? '' : 'pt-16 pb-28 md:pt-0 md:pb-0'} h-[100dvh] overflow-y-auto`}>
-        {children}
+      <main className={`flex-1 w-full relative ${isSetup ? '' : 'pt-16 md:pt-0'} h-[100dvh] overflow-y-auto overflow-x-hidden`}>
+        <div className={`min-h-full ${isSetup ? '' : 'pb-28 md:pb-0'}`}>
+          {children}
+        </div>
       </main>
 
       {/* Mobile Bottom Navigation */}
       {!isSetup && isMobile && (
         <>
-          <div className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-zinc-950 border-t border-zinc-200 dark:border-zinc-800 h-20 px-2 pb-2 flex items-center justify-around shadow-[0_-4px_20px_rgba(0,0,0,0.05)] dark:shadow-[0_-4px_20px_rgba(0,0,0,0.4)]">
+          <div className="fixed bottom-6 left-4 right-4 z-50 bg-zinc-950 border border-zinc-800 h-16 rounded-2xl px-6 flex items-center justify-around shadow-2xl shadow-black/40">
             {coreMobileLinks.map((link) => {
               const isActive = pathname.startsWith(link.href)
               const Icon = link.icon
@@ -158,11 +160,11 @@ export default function NGOLayout({
                   key={link.href} 
                   href={link.href}
                   className={`flex flex-col items-center justify-center w-16 h-full gap-1 transition-colors ${
-                    isActive ? 'text-zinc-900 dark:text-white' : 'text-zinc-500 dark:text-zinc-400'
+                    isActive ? 'text-white' : 'text-zinc-500 hover:text-zinc-400'
                   }`}
                 >
-                  <div className={`p-1.5 rounded-xl transition-all ${isActive ? 'bg-zinc-100 dark:bg-zinc-800' : 'bg-transparent'}`}>
-                    <Icon className={`w-6 h-6 ${isActive ? 'stroke-[2.5px]' : 'stroke-2'}`} />
+                  <div className={`p-1 rounded-xl transition-all ${isActive ? 'bg-zinc-800' : 'bg-transparent'}`}>
+                    <Icon className={`w-5 h-5 ${isActive ? 'stroke-[2.5px]' : 'stroke-2'}`} />
                   </div>
                   <span className={`text-[10px] font-bold ${isActive ? 'opacity-100' : 'opacity-80'}`}>{link.label}</span>
                 </Link>
@@ -171,11 +173,11 @@ export default function NGOLayout({
             <button 
               onClick={() => setIsMobileMenuOpen(true)}
               className={`flex flex-col items-center justify-center w-16 h-full gap-1 transition-colors ${
-                isMobileMenuOpen ? 'text-zinc-900 dark:text-white' : 'text-zinc-500 dark:text-zinc-400'
+                isMobileMenuOpen ? 'text-white' : 'text-zinc-500 hover:text-zinc-400'
               }`}
             >
-              <div className={`p-1.5 rounded-xl transition-all ${isMobileMenuOpen ? 'bg-zinc-100 dark:bg-zinc-800' : 'bg-transparent'}`}>
-                <Menu className={`w-6 h-6 ${isMobileMenuOpen ? 'stroke-[2.5px]' : 'stroke-2'}`} />
+              <div className={`p-1 rounded-xl transition-all ${isMobileMenuOpen ? 'bg-zinc-800' : 'bg-transparent'}`}>
+                <Menu className={`w-5 h-5 ${isMobileMenuOpen ? 'stroke-[2.5px]' : 'stroke-2'}`} />
               </div>
               <span className={`text-[10px] font-bold ${isMobileMenuOpen ? 'opacity-100' : 'opacity-80'}`}>More</span>
             </button>

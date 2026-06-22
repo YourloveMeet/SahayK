@@ -22,7 +22,7 @@ export default function VolunteerLayout({
   ]
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-[#0A0A0A]">
+    <div className="flex min-h-screen flex-col overflow-x-hidden bg-slate-50 dark:bg-[#0A0A0A]">
       {/* Cinematic Navbar (Desktop Only) */}
       <header className="hidden md:flex sticky top-0 z-50 backdrop-blur-xl bg-white/70 dark:bg-black/70 border-b border-gray-200 dark:border-zinc-800 shadow-sm">
         <div className="max-w-[1600px] w-full mx-auto px-4 md:px-8 h-20 flex items-center justify-between gap-4">
@@ -89,13 +89,13 @@ export default function VolunteerLayout({
       )}
 
       {/* Main Content */}
-      <main className={`flex-1 w-full relative pt-16 pb-24 md:pt-0 md:pb-0`}>
+      <main className={`flex-1 w-full relative pt-16 pb-28 md:pt-0 md:pb-0`}>
         {children}
       </main>
 
       {/* Mobile Bottom Navigation */}
       {isMobile && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-zinc-950 border-t border-zinc-200 dark:border-zinc-800 h-20 px-4 pb-2 flex items-center justify-around shadow-[0_-4px_20px_rgba(0,0,0,0.05)] dark:shadow-[0_-4px_20px_rgba(0,0,0,0.4)]">
+        <div className="fixed bottom-6 left-4 right-4 z-50 bg-zinc-950 border border-zinc-800 h-16 rounded-2xl px-6 flex items-center justify-around shadow-2xl shadow-black/40">
           {links.map((link) => {
             const isActive = pathname === link.href
             const Icon = link.icon
@@ -103,14 +103,14 @@ export default function VolunteerLayout({
               <Link 
                 key={link.href} 
                 href={link.href}
-                className={`flex flex-col items-center justify-center w-20 h-full gap-1 transition-colors ${
-                  isActive ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'
+                className={`flex flex-col items-center justify-center w-16 h-full gap-1 transition-colors ${
+                  isActive ? 'text-white' : 'text-zinc-500 hover:text-zinc-400'
                 }`}
               >
-                <div className={`p-1.5 rounded-xl transition-all ${isActive ? 'bg-zinc-100 dark:bg-zinc-800' : 'bg-transparent'}`}>
-                  <Icon className={`w-6 h-6 ${isActive ? 'stroke-[2.5px]' : 'stroke-2'}`} />
+                <div className={`p-1 rounded-xl transition-all ${isActive ? 'bg-zinc-800' : 'bg-transparent'}`}>
+                  <Icon className={`w-5 h-5 ${isActive ? 'stroke-[2.5px]' : 'stroke-2'}`} />
                 </div>
-                <span className={`text-[11px] font-bold ${isActive ? 'opacity-100' : 'opacity-80'}`}>{link.label}</span>
+                <span className={`text-[10px] font-bold ${isActive ? 'opacity-100' : 'opacity-80'}`}>{link.label}</span>
               </Link>
             )
           })}
