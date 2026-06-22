@@ -95,7 +95,7 @@ export default function VolunteerLayout({
 
       {/* Mobile Bottom Navigation */}
       {isMobile && (
-        <div className="fixed bottom-6 left-4 right-4 z-50 bg-zinc-950 border border-zinc-800 h-16 rounded-2xl px-6 flex items-center justify-around shadow-2xl shadow-black/40">
+        <div className="fixed bottom-6 left-4 right-4 z-50 bg-zinc-950/85 backdrop-blur-2xl border border-white/15 h-16 rounded-2xl px-6 flex items-center justify-around shadow-[0_8px_30px_rgb(0,0,0,0.6)]">
           {links.map((link) => {
             const isActive = pathname === link.href
             const Icon = link.icon
@@ -104,10 +104,10 @@ export default function VolunteerLayout({
                 key={link.href} 
                 href={link.href}
                 className={`flex flex-col items-center justify-center w-16 h-full gap-1 transition-colors ${
-                  isActive ? 'text-white' : 'text-zinc-500 hover:text-zinc-400'
+                  isActive ? 'text-white' : 'text-zinc-400 hover:text-zinc-200'
                 }`}
               >
-                <div className={`p-1 rounded-xl transition-all ${isActive ? 'bg-zinc-800' : 'bg-transparent'}`}>
+                <div className={`p-1.5 rounded-xl transition-all ${isActive ? 'bg-white/15 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)]' : 'bg-transparent'}`}>
                   <Icon className={`w-5 h-5 ${isActive ? 'stroke-[2.5px]' : 'stroke-2'}`} />
                 </div>
                 <span className={`text-[10px] font-bold ${isActive ? 'opacity-100' : 'opacity-80'}`}>{link.label}</span>

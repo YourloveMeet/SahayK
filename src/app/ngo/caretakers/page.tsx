@@ -65,6 +65,19 @@ export default function CaretakersPage() {
     }
   })
 
+  const [activeMenuId, setActiveMenuId] = useState<string | null>(null)
+
+  const deleteCaretakerMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('ngo_caretakers').delete().eq('id', id)
+      if (error) throw error
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['ngo', 'caretakers'] })
+      setActiveMenuId(null)
+    }
+  })
+
   return (
     <div className="max-w-6xl mx-auto p-4 md:p-10 space-y-8 bg-zinc-50 dark:bg-[#09090b] min-h-screen text-zinc-900 dark:text-zinc-50">
       
@@ -138,7 +151,7 @@ export default function CaretakersPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {caretakers?.map(staff => (
               <div key={staff.id} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm group hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
-                <div className="flex justify-between items-start mb-4">
+                <div className="flex justify-between items-start mb-4 relative">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center font-black text-lg text-zinc-700 dark:text-zinc-300 uppercase">
                       {staff.name.charAt(0)}
@@ -150,9 +163,32 @@ export default function CaretakersPage() {
                       </span>
                     </div>
                   </div>
-                  <button className="text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
-                    <MoreVertical className="w-5 h-5" />
-                  </button>
+                  <div className="relative">
+                    <button 
+                      onClick={(e) => { e.preventDefault(); setActiveMenuId(activeMenuId === staff.id ? null : staff.id); }}
+                      className="text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors p-1"
+                    >
+                      <MoreVertical className="w-5 h-5" />
+                    </button>
+                    
+                    {activeMenuId === staff.id && (
+                      <>
+                        <div className="fixed inset-0 z-40" onClick={() => setActiveMenuId(null)}></div>
+                        <div className="absolute right-0 top-full mt-1 w-32 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95">
+                          <button 
+                            onClick={() => {
+                              if (window.confirm('Are you sure you want to delete this caretaker?')) {
+                                deleteCaretakerMutation.mutate(staff.id)
+                              }
+                            }}
+                            className="w-full text-left px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 font-bold transition-colors"
+                          >
+                            Delete Staff
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </div>
                 
                 <div className="space-y-2 mt-6 border-t border-zinc-100 dark:border-zinc-800 pt-4">

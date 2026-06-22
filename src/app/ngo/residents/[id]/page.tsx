@@ -308,7 +308,7 @@ export default function ResidentDetails({ params }: { params: Promise<{ id: stri
         </div>
       </div>
 
-      <div className="flex gap-2 border-b border-gray-200 dark:border-zinc-800 overflow-x-auto relative z-10 pb-1 scrollbar-hide">
+      <div className="flex gap-2 border-b border-gray-200 dark:border-zinc-800 overflow-x-auto relative z-10 pb-1 hide-scrollbar">
         <button 
           onClick={() => setActiveTab('profile')}
           className={`pb-3 px-3 font-bold text-sm md:text-base whitespace-nowrap transition-colors border-b-2 flex items-center gap-2 ${activeTab === 'profile' ? 'border-zinc-900 text-zinc-900 dark:border-white dark:text-white' : 'border-transparent text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}

@@ -101,13 +101,13 @@ export default function SeekerLayout({
         {children}
       </main>
 
-      <nav className={`fixed bottom-6 left-4 right-4 z-50 bg-zinc-950 border border-zinc-800 h-16 rounded-2xl px-6 flex justify-between items-center transition-all duration-700 ease-out shadow-2xl shadow-black/40 ${showBottomNav ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'}`}>
+      <nav className={`fixed bottom-6 left-4 right-4 z-50 bg-zinc-950/85 backdrop-blur-2xl border border-white/15 h-16 rounded-2xl px-6 flex justify-between items-center transition-all duration-700 ease-out shadow-[0_8px_30px_rgb(0,0,0,0.6)] ${showBottomNav ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'}`}>
         {links.map(link => {
           const isActive = pathname === link.href
           const Icon = link.icon
           return (
-             <Link key={link.href} href={link.href} className={`flex flex-col items-center justify-center gap-1 transition-colors w-16 ${isActive ? 'text-white' : 'text-zinc-500 hover:text-zinc-400'}`}>
-               <div className={`p-1 rounded-xl transition-all ${isActive ? 'bg-zinc-800' : 'bg-transparent'}`}>
+             <Link key={link.href} href={link.href} className={`flex flex-col items-center justify-center gap-1 transition-colors w-16 ${isActive ? 'text-white' : 'text-zinc-400 hover:text-zinc-200'}`}>
+               <div className={`p-1.5 rounded-xl transition-all ${isActive ? 'bg-white/15 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)]' : 'bg-transparent'}`}>
                  <Icon className={`w-5 h-5 ${isActive ? 'stroke-[2.5px]' : 'stroke-2'}`} />
                </div>
                <span className="text-[10px] font-bold">{link.label}</span>
