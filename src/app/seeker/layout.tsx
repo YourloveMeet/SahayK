@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { LogoutButton } from '@/components/LogoutButton'
@@ -14,6 +14,13 @@ export default function SeekerLayout({
 }) {
   const pathname = usePathname()
   const isMobile = useIsMobile()
+  const [showBottomNav, setShowBottomNav] = useState(false)
+
+  useEffect(() => {
+    // Delay bottom nav to appear after the loading overlay fades out
+    const timer = setTimeout(() => setShowBottomNav(true), 1500)
+    return () => clearTimeout(timer)
+  }, [])
 
   const links = [
     { href: '/seeker/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -76,7 +83,7 @@ export default function SeekerLayout({
   )
 
   const MobileLayout = (
-    <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-[#0A0A0A] pb-20">
+    <div className={`flex min-h-screen flex-col bg-slate-50 dark:bg-[#0A0A0A] ${showBottomNav ? 'pb-20' : ''}`}>
       <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/70 dark:bg-black/70 border-b border-gray-200 dark:border-zinc-800">
         <div className="px-4 h-16 flex items-center justify-between">
           <Link href="/seeker/dashboard" className="flex items-center gap-2">
@@ -94,7 +101,7 @@ export default function SeekerLayout({
         {children}
       </main>
 
-      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-xl border-t border-gray-200 dark:border-zinc-800 px-8 py-3 flex justify-between items-center pb-6">
+      <nav className={`fixed bottom-0 left-0 right-0 z-50 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-xl border-t border-gray-200 dark:border-zinc-800 px-8 py-3 flex justify-between items-center pb-6 transition-all duration-700 ease-out ${showBottomNav ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'}`}>
         {links.map(link => {
           const isActive = pathname === link.href
           const Icon = link.icon

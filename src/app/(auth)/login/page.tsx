@@ -9,6 +9,7 @@ import { motion } from 'framer-motion'
 import { ShinyText } from '@/components/ui/ShinyText'
 import { ArrowRight, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
+import { FalconLoader } from '@/components/ui/Loaders'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -39,9 +40,11 @@ export default function LoginPage() {
     formData.append('email', data.email)
     formData.append('password', data.password)
 
+    sessionStorage.setItem('is_fresh_login', 'true')
     const result = await loginAction(formData)
     
     if (result?.error) {
+      sessionStorage.removeItem('is_fresh_login')
       setError(result.error)
       setIsLoading(false)
     }
@@ -72,6 +75,14 @@ export default function LoginPage() {
       <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-indigo-500/10 rounded-full blur-[150px] pointer-events-none mix-blend-multiply" />
       <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-purple-500/10 rounded-full blur-[150px] pointer-events-none mix-blend-multiply" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0)_0%,rgba(255,255,255,1)_80%)] pointer-events-none z-0" />
+
+      {/* Full Screen Loading Overlay */}
+      {isLoading && (
+        <div className="fixed inset-0 z-[9999] bg-[#0A0A0A]/90 backdrop-blur-md flex flex-col items-center justify-center animate-in fade-in zoom-in-95 duration-300" style={{ '--background': '#0A0A0A' } as React.CSSProperties}>
+          <FalconLoader />
+          <h2 className="text-white text-2xl font-black mt-10 tracking-tighter animate-pulse">Authenticating...</h2>
+        </div>
+      )}
 
       <motion.div 
         variants={containerVariants}

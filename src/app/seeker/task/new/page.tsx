@@ -597,7 +597,7 @@ function NewTaskForm() {
   )
 
   const renderMobileView = () => (
-    <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-[#0A0A0A] pb-32">
+    <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-[#0A0A0A] pb-24">
       
       <div className="bg-white dark:bg-zinc-900 px-6 pt-6 pb-6 border-b border-gray-100 dark:border-zinc-800 z-10 relative">
         <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Request Help</h1>
@@ -831,8 +831,8 @@ function NewTaskForm() {
           </label>
         </div>
 
-        {/* Sticky Submit Bottom Bar */}
-        <div className="fixed bottom-[72px] left-0 right-0 p-4 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-xl border-t border-gray-100 dark:border-zinc-800 z-40">
+        {/* Submit Button */}
+        <div className="mx-4 mt-8 mb-6">
           <Button 
             type="submit" 
             disabled={isLoading} 

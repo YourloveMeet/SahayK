@@ -49,9 +49,11 @@ export default function RegisterPage() {
     formData.append('fullName', data.fullName)
     formData.append('role', data.role)
 
+    sessionStorage.setItem('is_fresh_login', 'true')
     const result = await signupAction(formData)
     
     if (result?.error) {
+      sessionStorage.removeItem('is_fresh_login')
       setError(result.error)
       setIsLoading(false)
     } else if (result?.success) {

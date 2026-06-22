@@ -4,6 +4,9 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 
 export async function loginAction(formData: FormData) {
+  // Artificial delay to show the awesome loader for longer
+  await new Promise(r => setTimeout(r, 1500))
+
   const email = formData.get('email') as string
   const password = formData.get('password') as string
   

@@ -1,11 +1,13 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Users, ListTodo, Bell, CheckCircle, Clock, Repeat, ArrowRight, Activity, Calendar } from 'lucide-react'
 import Link from 'next/link'
 import { useIsMobile } from '@/hooks/use-mobile'
+import { DominosLoader } from '@/components/ui/Loaders'
+import { FadeOutOverlay } from '@/components/ui/FadeOutOverlay'
 
 export default function NGODashboard() {
   const supabase = createClient()
