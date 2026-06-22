@@ -97,14 +97,14 @@ export default function ExpensesPage() {
   }))
 
   return (
-    <div className="max-w-6xl mx-auto p-4 md:p-10 space-y-8 bg-zinc-50 dark:bg-[#09090b] min-h-screen text-zinc-900 dark:text-zinc-50">
+    <div className="max-w-6xl mx-auto p-4 md:p-10 space-y-8 bg-zinc-50 dark:bg-[#09090b] min-h-[100dvh] text-zinc-900 dark:text-zinc-50">
       
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-black tracking-tight flex items-center gap-3">
-            <Wallet className="w-8 h-8 text-zinc-700 dark:text-zinc-300" />
-            Expense Management
+          <h1 className="text-3xl md:text-4xl font-black tracking-tight flex items-center gap-3 flex-wrap break-words">
+            <Wallet className="w-8 h-8 text-zinc-700 dark:text-zinc-300 shrink-0" />
+            <span className="min-w-0">Expense Management</span>
           </h1>
           <p className="text-zinc-500 mt-1 font-medium">Track and analyze facility operating costs.</p>
         </div>
@@ -122,7 +122,7 @@ export default function ExpensesPage() {
           <div className="flex justify-between items-start">
             <div className="space-y-1">
               <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Total Spend</p>
-              <p className="text-4xl font-black">₹{totalAmount.toLocaleString()}</p>
+              <p className="text-4xl font-black truncate">₹{totalAmount.toLocaleString()}</p>
             </div>
             <div className="p-3 bg-zinc-100 dark:bg-zinc-800 rounded-xl">
               <DollarSign className="w-6 h-6 text-zinc-700 dark:text-zinc-300" />
@@ -146,7 +146,7 @@ export default function ExpensesPage() {
           <div className="flex justify-between items-start">
             <div className="space-y-1">
               <p className="text-xs font-bold opacity-80 uppercase tracking-widest">Avg Transaction</p>
-              <p className="text-4xl font-black">
+              <p className="text-4xl font-black truncate">
                 ₹{expenses?.length ? Math.round(totalAmount / expenses.length).toLocaleString() : 0}
               </p>
             </div>
@@ -160,7 +160,7 @@ export default function ExpensesPage() {
       {/* Graphs Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Category Breakdown */}
-        <div className="p-6 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-sm">
+        <div className="min-w-0 p-6 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-sm">
           <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
             <PieChartIcon className="w-5 h-5 text-zinc-500" /> Category Breakdown
           </h3>
@@ -204,7 +204,7 @@ export default function ExpensesPage() {
         </div>
 
         {/* Monthly Trend */}
-        <div className="p-6 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-sm">
+        <div className="min-w-0 p-6 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-sm">
           <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
             <ArrowUpRight className="w-5 h-5 text-zinc-500" /> Spend Trend
           </h3>

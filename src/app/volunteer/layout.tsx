@@ -89,7 +89,7 @@ export default function VolunteerLayout({
       )}
 
       {/* Main Content */}
-      <main className={`flex-1 w-full relative ${isMobile ? 'pt-16 pb-20' : ''}`}>
+      <main className={`flex-1 w-full relative pt-16 pb-24 md:pt-0 md:pb-0`}>
         {children}
       </main>
 

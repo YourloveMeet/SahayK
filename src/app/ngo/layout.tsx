@@ -82,7 +82,7 @@ export default function NGOLayout({
   const isSetup = pathname === '/ngo/setup'
 
   return (
-    <div className="flex min-h-screen bg-slate-50 dark:bg-[#0A0A0A]">
+    <div className="flex min-h-[100dvh] bg-slate-50 dark:bg-[#0A0A0A]">
       {/* Desktop Sidebar */}
       {!isSetup && (
         <aside className="w-64 border-r border-gray-200 dark:border-zinc-800 bg-white dark:bg-black hidden md:flex flex-col z-10">
@@ -142,7 +142,7 @@ export default function NGOLayout({
       )}
 
       {/* Main Content */}
-      <main className={`flex-1 w-full relative ${isSetup ? '' : (isMobile ? 'pt-16 pb-20' : '')} h-screen overflow-y-auto`}>
+      <main className={`flex-1 w-full relative ${isSetup ? '' : 'pt-16 pb-28 md:pt-0 md:pb-0'} h-[100dvh] overflow-y-auto`}>
         {children}
       </main>
 
