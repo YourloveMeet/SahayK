@@ -6,6 +6,7 @@ import Link from 'next/link'
 
 export default function CatalogViewer({ categories }: { categories: any[] }) {
   const [selectedService, setSelectedService] = useState<any | null>(null)
+  const [selectedCategory, setSelectedCategory] = useState<any | null>(null)
   const [mounted, setMounted] = useState(false)
   const [activeTab, setActiveTab] = useState<'volunteer' | 'self'>('volunteer')
 
@@ -30,44 +31,91 @@ export default function CatalogViewer({ categories }: { categories: any[] }) {
 
   return (
     <>
-      <div className="space-y-12">
-        {categories?.map((category, categoryIndex) => {
-          
-          // Use the unified monochrome glass theme for all cards
-          const theme = {
-            bg: "bg-white/60 dark:bg-black/60 backdrop-blur-xl",
-            border: "border-gray-200 dark:border-zinc-800",
-            hoverBorder: "hover:border-gray-300 dark:hover:border-zinc-600",
-            textHover: "group-hover:text-gray-900 dark:group-hover:text-white",
-            iconGradient: "bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white"
-          };
-
-          // Sort services by sort_order
-          let sortedServices = [...(category.services || [])].sort((a, b) => a.sort_order - b.sort_order);
-
-          if (sortedServices.length === 0) {
-            sortedServices = [{
-              id: `general-${category.id}`,
-              category_id: category.id,
-              title: `General ${category.title} Request`,
-              estimated_time: 'Varies',
-              steps: ['Describe what you need', 'A volunteer will be matched', 'Get help quickly'],
-              documents_needed: []
-            }];
-          }
-
-          return (
-            <div key={category.id} className="space-y-6">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white px-2 border-l-4 border-gray-900 dark:border-white pl-4 flex items-center gap-3">
-                {category.title}
-              </h2>
+      <div className="space-y-12 min-h-[50vh]">
+        {!selectedCategory ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in zoom-in-95 duration-300">
+            {categories?.map((category) => {
+              const theme = {
+                bg: "bg-white/60 dark:bg-black/60 backdrop-blur-xl",
+                border: "border-gray-200 dark:border-zinc-800",
+                hoverBorder: "hover:border-blue-500/50 dark:hover:border-blue-500/50",
+                textHover: "group-hover:text-blue-600 dark:group-hover:text-blue-400",
+              };
               
-              <div className="flex overflow-x-auto pb-8 pt-2 px-2 -mx-2 snap-x snap-mandatory hide-scrollbar gap-5 after:content-[''] after:shrink-0 after:w-4">
-                {sortedServices.map((service) => (
+              const serviceCount = category.services?.length || 0;
+
+              return (
+                <div 
+                  key={category.id} 
+                  onClick={() => setSelectedCategory(category)}
+                  className={`flex flex-col p-8 ${theme.bg} border ${theme.border} rounded-[1.5rem] shadow-sm hover:shadow-lg ${theme.hoverBorder} transition-all duration-300 hover:-translate-y-1 cursor-pointer group`}
+                >
+                  <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center mb-6 shadow-inner group-hover:scale-110 transition-transform duration-300">
+                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                    </svg>
+                  </div>
+                  <h2 className={`text-xl font-extrabold text-gray-900 dark:text-white leading-snug transition-colors ${theme.textHover}`}>
+                    {category.title}
+                  </h2>
+                  <p className="text-gray-500 dark:text-gray-400 mt-2 font-medium">
+                    {serviceCount} {serviceCount === 1 ? 'Service' : 'Services'} Available
+                  </p>
+                  
+                  <div className="mt-6 flex items-center text-sm font-bold text-blue-600 dark:text-blue-400 group-hover:translate-x-1 transition-transform">
+                    View Services
+                    <svg className="w-4 h-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="space-y-6 animate-in slide-in-from-right-8 fade-in duration-300">
+            <button 
+              onClick={() => setSelectedCategory(null)}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-white/50 dark:bg-zinc-900/50 hover:bg-white dark:hover:bg-zinc-800 rounded-full text-sm font-bold text-gray-600 dark:text-gray-300 transition-colors border border-gray-200 dark:border-zinc-800 backdrop-blur-md"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
+              Back to Categories
+            </button>
+
+            <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white px-2 border-l-4 border-blue-600 dark:border-blue-500 pl-4 flex items-center gap-3">
+              {selectedCategory.title}
+            </h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-6 pt-2">
+              {(() => {
+                const theme = {
+                  bg: "bg-white/60 dark:bg-black/60 backdrop-blur-xl",
+                  border: "border-gray-200 dark:border-zinc-800",
+                  hoverBorder: "hover:border-gray-300 dark:hover:border-zinc-600",
+                  textHover: "group-hover:text-gray-900 dark:group-hover:text-white",
+                  iconGradient: "bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white"
+                };
+
+                let sortedServices = [...(selectedCategory.services || [])].sort((a, b) => a.sort_order - b.sort_order);
+
+                if (sortedServices.length === 0) {
+                  sortedServices = [{
+                    id: `general-${selectedCategory.id}`,
+                    category_id: selectedCategory.id,
+                    title: `General ${selectedCategory.title} Request`,
+                    estimated_time: 'Varies',
+                    steps: ['Describe what you need', 'A volunteer will be matched', 'Get help quickly'],
+                    documents_needed: []
+                  }];
+                }
+
+                return sortedServices.map((service) => (
                   <div 
                     key={service.id} 
                     onClick={() => setSelectedService(service)}
-                    className="snap-start shrink-0 w-[260px] h-[140px] relative group cursor-pointer"
+                    className="w-full min-h-[140px] relative group cursor-pointer"
                   >
                     <div className={`absolute -inset-1 bg-gray-200/50 dark:bg-zinc-800/50 rounded-[1rem] transition-all duration-300 opacity-0 group-hover:opacity-100 blur-md`}></div>
                     
@@ -76,7 +124,7 @@ export default function CatalogViewer({ categories }: { categories: any[] }) {
                         {service.title}
                       </h3>
                       
-                      <div className="flex items-center justify-between mt-2">
+                      <div className="flex items-center justify-between mt-4">
                         <div className={`h-8 w-8 rounded-full ${theme.iconGradient} shadow-sm border border-gray-200 dark:border-zinc-700 flex items-center justify-center transition-transform duration-300 group-hover:scale-110`}>
                           <svg className="w-4 h-4 transform group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
@@ -85,19 +133,19 @@ export default function CatalogViewer({ categories }: { categories: any[] }) {
                       </div>
                     </div>
                   </div>
-                ))}
-              </div>
+                ));
+              })()}
             </div>
-          )
-        })}
+          </div>
+        )}
       </div>
 
       {/* Modal Overlay */}
       {mounted && selectedService && createPortal(
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedService(null)}>
+        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-6 bg-black/60 backdrop-blur-sm transition-all" onClick={() => setSelectedService(null)}>
           
           <div 
-            className="w-full max-w-4xl max-h-[90vh] bg-white dark:bg-zinc-950 rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-slate-200 dark:border-zinc-800"
+            className="w-full max-w-4xl max-h-[90vh] h-[90vh] sm:h-auto bg-white dark:bg-zinc-950 rounded-t-[2rem] sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-slate-200 dark:border-zinc-800 animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-8 duration-300"
             onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
           >
             {/* Modal Header */}

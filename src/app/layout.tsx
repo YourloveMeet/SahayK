@@ -5,6 +5,7 @@ import "leaflet/dist/leaflet.css";
 import QueryProvider from "@/components/QueryProvider";
 import { OnboardingPopup } from "@/components/OnboardingPopup";
 import { GlobalSplash } from "@/components/ui/GlobalSplash";
+import { ScrollToTop } from "@/components/ScrollToTop";
 
 const nunito = Nunito({
   subsets: ["latin"],
@@ -28,6 +29,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col font-sans bg-slate-50 dark:bg-[#0A0A0A] selection:bg-indigo-500/30">
         <QueryProvider>
+          <ScrollToTop />
           <GlobalSplash />
           {children}
           <OnboardingPopup />
