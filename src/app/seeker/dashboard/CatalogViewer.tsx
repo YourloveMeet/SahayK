@@ -7,15 +7,17 @@ import Link from 'next/link'
 export default function CatalogViewer({ categories }: { categories: any[] }) {
   const [selectedService, setSelectedService] = useState<any | null>(null)
   const [mounted, setMounted] = useState(false)
+  const [activeTab, setActiveTab] = useState<'volunteer' | 'self'>('volunteer')
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  // Lock body scroll when modal is open
+  // Lock body scroll when modal is open and reset tab
   useEffect(() => {
     if (selectedService) {
       document.body.style.overflow = 'hidden'
+      setActiveTab('volunteer') // Default to volunteer help
     } else {
       document.body.style.overflow = ''
     }
@@ -110,133 +112,146 @@ export default function CatalogViewer({ categories }: { categories: any[] }) {
             </div>
 
             {/* Modal Body Scroll Container */}
-            <div className="flex-1 overflow-y-auto p-6 md:p-8">
-              <div className="grid md:grid-cols-2 gap-8 md:gap-12 pb-4">
+            <div className="flex-1 overflow-y-auto p-0 md:p-8 flex flex-col">
+              
+              {/* Sticky Segmented Control Tabs */}
+              <div className="sticky top-0 z-20 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md px-6 py-4 md:p-0 md:mb-8 border-b border-gray-100 dark:border-zinc-900 md:border-none">
+                <div className="flex bg-gray-100 dark:bg-zinc-900 p-1 rounded-2xl w-full max-w-lg mx-auto">
+                  <button 
+                    onClick={() => setActiveTab('volunteer')}
+                    className={`flex-1 py-3 px-4 rounded-xl font-bold text-sm md:text-base transition-all ${activeTab === 'volunteer' ? 'bg-white dark:bg-zinc-800 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
+                  >
+                    Request Volunteer
+                  </button>
+                  <button 
+                    onClick={() => setActiveTab('self')}
+                    className={`flex-1 py-3 px-4 rounded-xl font-bold text-sm md:text-base transition-all ${activeTab === 'self' ? 'bg-white dark:bg-zinc-800 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
+                  >
+                    Try It Yourself
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-6 md:p-0 flex-1 flex flex-col">
                 
-                {/* Left Column: Try It Yourself */}
-                <div className="space-y-8">
-                  <div>
-                    <div className="inline-block px-4 py-1.5 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-gray-100 font-bold rounded-full text-sm uppercase tracking-wider mb-4 border border-gray-200 dark:border-zinc-700">
-                      Option 1: Try It Yourself
-                    </div>
-                    <p className="text-gray-600 dark:text-gray-400 font-medium leading-relaxed">
-                      You can complete this service online directly through the official portal. Follow these steps:
-                    </p>
-                  </div>
-
-                  <div className="space-y-4">
-                    {selectedService.steps?.map((step: string, idx: number) => (
-                      <div key={idx} className="flex items-start gap-4">
-                        <div className="shrink-0 w-8 h-8 rounded-full bg-gray-100 dark:bg-zinc-800 flex items-center justify-center font-bold text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-zinc-700">
-                          {idx + 1}
-                        </div>
-                        <p className="text-gray-800 dark:text-gray-200 leading-relaxed pt-1 font-medium">{step}</p>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="pt-4 border-t border-gray-100 dark:border-zinc-800">
-                    <h4 className="font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                      <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      Documents You'll Need to Upload
-                    </h4>
-                    <ul className="space-y-2">
-                      {selectedService.documents_needed?.map((doc: string, idx: number) => (
-                        <li key={idx} className="flex items-start gap-3 text-gray-600 dark:text-gray-400 font-medium">
-                          <svg className="w-5 h-5 text-gray-900 dark:text-white shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                          </svg>
-                          {doc}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  {selectedService.official_url && (
-                    <div className="pt-2">
-                      <a 
-                        href={selectedService.official_url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 px-6 py-4 bg-gray-900 hover:bg-gray-800 dark:bg-white dark:hover:bg-gray-100 text-white dark:text-black font-bold rounded-xl transition-all shadow-md hover:shadow-lg w-full justify-center md:w-auto"
-                      >
-                        Open Official Website
-                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-                      </a>
-                    </div>
-                  )}
-                </div>
-
-                {/* Right Column: Request Volunteer */}
-                <div className="flex flex-col h-full">
-                  <div className="mb-6">
-                    <div className="inline-block px-4 py-1.5 bg-blue-100 dark:bg-blue-500/20 text-blue-800 dark:text-blue-300 font-bold rounded-full text-sm uppercase tracking-wider">
-                      Option 2: Need Help?
-                    </div>
-                  </div>
-
-                  <div className="flex-1 p-6 md:p-8 bg-blue-50 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/50 rounded-3xl shadow-inner relative overflow-hidden flex flex-col">
-                    
-                    {/* Decorative blur */}
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-blue-400/10 rounded-full blur-3xl pointer-events-none"></div>
-
-                    <p className="text-blue-900 dark:text-blue-200 font-medium text-lg leading-relaxed relative z-10 mb-8">
-                      If you cannot complete this yourself, a SahayaK volunteer can assist you in person.
-                    </p>
-
-                    <div className="space-y-6 relative z-10 mb-8">
-                      <div className="flex items-start gap-4">
-                        <div className="w-10 h-10 rounded-full bg-white dark:bg-black/20 flex items-center justify-center shrink-0 shadow-sm border border-blue-100 dark:border-blue-800">
-                          <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                        </div>
-                        <div>
-                          <div className="font-bold text-gray-900 dark:text-white">Estimated Time</div>
-                          <div className="text-gray-600 dark:text-gray-400 mt-1">{selectedService.estimated_time || 'Varies'}</div>
-                        </div>
-                      </div>
+                {/* Right Column: Request Volunteer (Now Tab 1) */}
+                {activeTab === 'volunteer' && (
+                  <div className="flex flex-col h-full max-w-2xl mx-auto w-full animate-in fade-in slide-in-from-bottom-4 duration-300">
+                    <div className="flex-1 p-6 md:p-8 bg-blue-50 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/50 rounded-3xl shadow-inner relative overflow-hidden flex flex-col">
                       
-                      <div className="flex items-start gap-4">
-                        <div className="w-10 h-10 rounded-full bg-white dark:bg-black/20 flex items-center justify-center shrink-0 shadow-sm border border-blue-100 dark:border-blue-800">
-                          <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                          </svg>
+                      {/* Decorative blur */}
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-blue-400/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                      <p className="text-blue-900 dark:text-blue-200 font-medium text-lg leading-relaxed relative z-10 mb-8">
+                        A SahayaK volunteer will be dispatched to assist you in person with this request.
+                      </p>
+
+                      <div className="space-y-6 relative z-10 mb-8">
+                        <div className="flex items-start gap-4">
+                          <div className="w-10 h-10 rounded-full bg-white dark:bg-black/20 flex items-center justify-center shrink-0 shadow-sm border border-blue-100 dark:border-blue-800">
+                            <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                          </div>
+                          <div>
+                            <div className="font-bold text-gray-900 dark:text-white">Estimated Time</div>
+                            <div className="text-gray-600 dark:text-gray-400 mt-1">{selectedService.estimated_time || 'Varies'}</div>
+                          </div>
                         </div>
-                        <div>
-                          <div className="font-bold text-gray-900 dark:text-white">Documents You'll Need</div>
-                          <div className="text-gray-600 dark:text-gray-400 mt-1">Please have these ready when the volunteer arrives.</div>
+                        
+                        <div className="flex items-start gap-4">
+                          <div className="w-10 h-10 rounded-full bg-white dark:bg-black/20 flex items-center justify-center shrink-0 shadow-sm border border-blue-100 dark:border-blue-800">
+                            <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                          </div>
+                          <div>
+                            <div className="font-bold text-gray-900 dark:text-white">Documents You'll Need</div>
+                            <div className="text-gray-600 dark:text-gray-400 mt-1">Please have these ready when the volunteer arrives.</div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-start gap-4">
+                          <div className="w-10 h-10 rounded-full bg-white dark:bg-black/20 flex items-center justify-center shrink-0 shadow-sm border border-blue-100 dark:border-blue-800">
+                            <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                          </div>
+                          <div>
+                            <div className="font-bold text-gray-900 dark:text-white">Location Sharing</div>
+                            <div className="text-gray-600 dark:text-gray-400 mt-1 leading-relaxed">You will pin your exact location so the volunteer knows where to meet you.</div>
+                          </div>
                         </div>
                       </div>
 
-                      <div className="flex items-start gap-4">
-                        <div className="w-10 h-10 rounded-full bg-white dark:bg-black/20 flex items-center justify-center shrink-0 shadow-sm border border-blue-100 dark:border-blue-800">
-                          <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                          </svg>
-                        </div>
-                        <div>
-                          <div className="font-bold text-gray-900 dark:text-white">Location Sharing</div>
-                          <div className="text-gray-600 dark:text-gray-400 mt-1 leading-relaxed">You will pin your exact location so the volunteer knows where to meet you.</div>
-                        </div>
+                      <div className="mt-auto relative z-10 pt-2">
+                        <Link 
+                          href={`/seeker/task/new?service=${selectedService.id}&category=${selectedService.category_id}`}
+                          className="flex items-center justify-center gap-2 w-full px-6 py-5 bg-blue-600 hover:bg-blue-700 text-white font-black text-lg rounded-xl transition-all shadow-md shadow-blue-500/25 hover:shadow-blue-500/40 hover:-translate-y-1"
+                        >
+                          Request a Volunteer
+                          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                        </Link>
                       </div>
-                    </div>
-
-                    {/* Button pushed to bottom using mt-auto */}
-                    <div className="mt-auto relative z-10 pt-2">
-                      <Link 
-                        href={`/seeker/task/new?service=${selectedService.id}&category=${selectedService.category_id}`}
-                        className="flex items-center justify-center gap-2 w-full px-6 py-5 bg-blue-600 hover:bg-blue-700 text-white font-black text-lg rounded-xl transition-all shadow-md shadow-blue-500/25 hover:shadow-blue-500/40 hover:-translate-y-1"
-                      >
-                        Request a Volunteer
-                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-                      </Link>
                     </div>
                   </div>
-                </div>
+                )}
+
+                {/* Left Column: Try It Yourself (Now Tab 2) */}
+                {activeTab === 'self' && (
+                  <div className="space-y-8 max-w-2xl mx-auto w-full animate-in fade-in slide-in-from-bottom-4 duration-300">
+                    <div>
+                      <p className="text-gray-600 dark:text-gray-400 font-medium leading-relaxed">
+                        You can complete this service online directly through the official portal. Follow these steps:
+                      </p>
+                    </div>
+
+                    <div className="space-y-4 bg-gray-50 dark:bg-zinc-900/50 p-6 rounded-3xl border border-gray-100 dark:border-zinc-800/50">
+                      {selectedService.steps?.map((step: string, idx: number) => (
+                        <div key={idx} className="flex items-start gap-4">
+                          <div className="shrink-0 w-8 h-8 rounded-full bg-white dark:bg-zinc-800 flex items-center justify-center font-bold text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-zinc-700 shadow-sm">
+                            {idx + 1}
+                          </div>
+                          <p className="text-gray-800 dark:text-gray-200 leading-relaxed pt-1 font-medium">{step}</p>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="pt-4 border-t border-gray-100 dark:border-zinc-800">
+                      <h4 className="font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                        <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Documents You'll Need to Upload
+                      </h4>
+                      <ul className="space-y-2 bg-white dark:bg-black border border-gray-200 dark:border-zinc-800 p-6 rounded-3xl shadow-sm">
+                        {selectedService.documents_needed?.map((doc: string, idx: number) => (
+                          <li key={idx} className="flex items-start gap-3 text-gray-600 dark:text-gray-400 font-medium">
+                            <svg className="w-5 h-5 text-green-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                            {doc}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    {selectedService.official_url && (
+                      <div className="pt-6">
+                        <a 
+                          href={selectedService.official_url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 px-6 py-5 bg-gray-900 hover:bg-gray-800 dark:bg-white dark:hover:bg-gray-100 text-white dark:text-black font-bold rounded-xl transition-all shadow-md hover:shadow-lg w-full justify-center"
+                        >
+                          Open Official Website
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                )}
 
               </div>
             </div>

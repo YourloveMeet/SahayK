@@ -362,11 +362,11 @@ export default function ResidentDetails({ params }: { params: Promise<{ id: stri
         
         {activeTab === 'medicines' && (
           <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Prescribed Medicines</h2>
+            <div className="flex justify-between items-center gap-3">
+              <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white leading-tight">Prescribed Medicines</h2>
               <button 
                 onClick={() => setIsMedicineModalOpen(true)}
-                className="px-4 py-2 bg-zinc-900 hover:bg-black dark:bg-white dark:hover:bg-zinc-200 dark:text-black text-white font-bold rounded-xl transition-all flex items-center gap-2"
+                className="shrink-0 whitespace-nowrap px-3 py-2 md:px-4 md:py-2 bg-zinc-900 hover:bg-black dark:bg-white dark:hover:bg-zinc-200 dark:text-black text-white font-bold text-sm md:text-base rounded-xl transition-all flex items-center gap-1.5 md:gap-2"
               >
                 <Plus className="w-4 h-4" /> Add Medicine
               </button>
@@ -396,11 +396,11 @@ export default function ResidentDetails({ params }: { params: Promise<{ id: stri
         
         {activeTab === 'reminders' && (
           <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Scheduled Reminders</h2>
+            <div className="flex justify-between items-center gap-3">
+              <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white leading-tight">Scheduled Reminders</h2>
               <button 
                 onClick={() => setIsReminderModalOpen(true)}
-                className="px-4 py-2 bg-zinc-900 hover:bg-black dark:bg-white dark:hover:bg-zinc-200 dark:text-black text-white font-bold rounded-xl transition-all flex items-center gap-2"
+                className="shrink-0 whitespace-nowrap px-3 py-2 md:px-4 md:py-2 bg-zinc-900 hover:bg-black dark:bg-white dark:hover:bg-zinc-200 dark:text-black text-white font-bold text-sm md:text-base rounded-xl transition-all flex items-center gap-1.5 md:gap-2"
               >
                 <Plus className="w-4 h-4" /> Add Reminder
               </button>
@@ -447,7 +447,7 @@ export default function ResidentDetails({ params }: { params: Promise<{ id: stri
               </select>
               <div>
                 <label className="text-xs font-bold text-gray-500 block mb-2">Time of Day</label>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   {['Morning', 'Afternoon', 'Evening', 'Night'].map(t => (
                     <label key={t} className="flex items-center gap-2 text-sm bg-gray-50 dark:bg-zinc-800 p-2 rounded-lg cursor-pointer">
                       <input type="checkbox" checked={newMed.time_of_day.includes(t)} onChange={e => {

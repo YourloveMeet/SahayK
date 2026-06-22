@@ -1,13 +1,14 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { LogoutButton } from '@/components/LogoutButton'
-import { LayoutDashboard, Users, UserCircle, Wallet, BriefcaseMedical, Globe, SendHorizonal, Inbox, HeartHandshake } from 'lucide-react'
+import { LayoutDashboard, Users, UserCircle, Wallet, BriefcaseMedical, Globe, SendHorizonal, Inbox, HeartHandshake, Menu, X } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
 import { AlarmManager } from '@/components/AlarmManager'
+import { useIsMobile } from '@/hooks/use-mobile'
 
 export default function NGOLayout({
   children,
@@ -15,6 +16,9 @@ export default function NGOLayout({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
+  const router = useRouter()
+  const isMobile = useIsMobile()
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const links = [
     { href: '/ngo/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -28,8 +32,13 @@ export default function NGOLayout({
     { href: '/ngo/profile', label: 'Profile', icon: UserCircle },
   ]
 
+  const coreMobileLinks = [
+    { href: '/ngo/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/ngo/residents', label: 'Residents', icon: Users },
+    { href: '/ngo/caretakers', label: 'Caretakers', icon: BriefcaseMedical },
+  ]
+
   const supabase = createClient()
-  const router = useRouter()
 
   const { data: profile, isLoading } = useQuery({
     queryKey: ['ngo_profile_status'],
@@ -57,6 +66,11 @@ export default function NGOLayout({
     }
   }, [profile, isLoading, pathname, router])
 
+  // Close mobile menu when route changes
+  React.useEffect(() => {
+    setIsMobileMenuOpen(false)
+  }, [pathname])
+
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-[#0A0A0A]">
@@ -69,77 +83,147 @@ export default function NGOLayout({
 
   return (
     <div className="flex min-h-screen bg-slate-50 dark:bg-[#0A0A0A]">
-      {/* Sidebar */}
+      {/* Desktop Sidebar */}
       {!isSetup && (
-      <aside className="w-64 border-r border-gray-200 dark:border-zinc-800 bg-white dark:bg-black hidden md:flex flex-col">
-        <div className="p-6 border-b border-gray-200 dark:border-zinc-800 flex items-center gap-3">
-          <div className="w-10 h-10 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-xl flex items-center justify-center font-black text-xl shadow-lg shadow-zinc-900/10">
-            N
+        <aside className="w-64 border-r border-gray-200 dark:border-zinc-800 bg-white dark:bg-black hidden md:flex flex-col z-10">
+          <div className="p-6 border-b border-gray-200 dark:border-zinc-800 flex items-center gap-3">
+            <div className="w-10 h-10 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-xl flex items-center justify-center font-black text-xl shadow-lg shadow-zinc-900/10">
+              N
+            </div>
+            <span className="text-xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+              SahayaK <span className="text-zinc-500 dark:text-zinc-400 font-bold block text-sm">NGO Admin</span>
+            </span>
           </div>
-          <span className="text-xl font-extrabold text-gray-900 dark:text-white tracking-tight">
-            SahayaK <span className="text-zinc-500 dark:text-zinc-400 font-bold block text-sm">NGO Admin</span>
-          </span>
-        </div>
 
-        <nav className="flex-1 p-4 space-y-2">
-          {links.map((link) => {
-            const isActive = pathname.startsWith(link.href)
-            const Icon = link.icon
-            return (
-              <Link 
-                key={link.href} 
-                href={link.href}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${
-                  isActive 
-                    ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-md shadow-zinc-900/10' 
-                    : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-zinc-800/50'
-                }`}
-              >
-                <Icon className="w-5 h-5" />
-                {link.label}
-              </Link>
-            )
-          })}
-        </nav>
+          <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+            {links.map((link) => {
+              const isActive = pathname.startsWith(link.href)
+              const Icon = link.icon
+              return (
+                <Link 
+                  key={link.href} 
+                  href={link.href}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${
+                    isActive 
+                      ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-md shadow-zinc-900/10' 
+                      : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-zinc-800/50'
+                  }`}
+                >
+                  <Icon className="w-5 h-5" />
+                  {link.label}
+                </Link>
+              )
+            })}
+          </nav>
 
-        <div className="p-4 border-t border-gray-200 dark:border-zinc-800">
-          <LogoutButton />
-        </div>
-      </aside>
+          <div className="p-4 border-t border-gray-200 dark:border-zinc-800">
+            <LogoutButton />
+          </div>
+        </aside>
       )}
 
-      {/* Mobile Nav */}
-      {!isSetup && (
-      <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-white dark:bg-black border-b border-gray-200 dark:border-zinc-800 p-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-emerald-600 text-white rounded-lg flex items-center justify-center font-black">N</div>
-          <span className="font-extrabold text-gray-900 dark:text-white">NGO Admin</span>
-        </div>
-        <div className="flex items-center gap-2">
-          {links.map((link) => {
-            const isActive = pathname.startsWith(link.href)
-            const Icon = link.icon
-            return (
-              <Link 
-                key={link.href} 
-                href={link.href}
-                className={`p-2 rounded-lg ${isActive ? 'bg-emerald-600 text-white' : 'text-gray-500'}`}
-              >
-                <Icon className="w-5 h-5" />
-              </Link>
-            )
-          })}
-          <div className="ml-2 pl-2 border-l border-gray-200 dark:border-zinc-800">
-             <LogoutButton />
+      {/* Mobile Top Bar */}
+      {!isSetup && isMobile && (
+        <div className="fixed top-0 left-0 right-0 z-40 bg-white dark:bg-zinc-950 border-b border-zinc-200 dark:border-zinc-800 h-16 flex items-center justify-between px-4 shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-lg flex items-center justify-center font-black text-base shadow-sm">
+              N
+            </div>
+            <span className="font-extrabold text-zinc-900 dark:text-white tracking-tight">
+              SahayaK
+            </span>
+          </div>
+          <div className="flex items-center gap-3">
+             <Link href="/ngo/profile" className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-600 dark:text-zinc-300">
+                <UserCircle className="w-5 h-5" />
+             </Link>
           </div>
         </div>
-      </div>
       )}
 
       {/* Main Content */}
-      <main className={`flex-1 w-full relative ${isSetup ? '' : 'pt-16 md:pt-0'} h-screen overflow-y-auto`}>
+      <main className={`flex-1 w-full relative ${isSetup ? '' : (isMobile ? 'pt-16 pb-20' : '')} h-screen overflow-y-auto`}>
         {children}
       </main>
+
+      {/* Mobile Bottom Navigation */}
+      {!isSetup && isMobile && (
+        <>
+          <div className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-zinc-950 border-t border-zinc-200 dark:border-zinc-800 h-20 px-2 pb-2 flex items-center justify-around shadow-[0_-4px_20px_rgba(0,0,0,0.05)] dark:shadow-[0_-4px_20px_rgba(0,0,0,0.4)]">
+            {coreMobileLinks.map((link) => {
+              const isActive = pathname.startsWith(link.href)
+              const Icon = link.icon
+              return (
+                <Link 
+                  key={link.href} 
+                  href={link.href}
+                  className={`flex flex-col items-center justify-center w-16 h-full gap-1 transition-colors ${
+                    isActive ? 'text-zinc-900 dark:text-white' : 'text-zinc-500 dark:text-zinc-400'
+                  }`}
+                >
+                  <div className={`p-1.5 rounded-xl transition-all ${isActive ? 'bg-zinc-100 dark:bg-zinc-800' : 'bg-transparent'}`}>
+                    <Icon className={`w-6 h-6 ${isActive ? 'stroke-[2.5px]' : 'stroke-2'}`} />
+                  </div>
+                  <span className={`text-[10px] font-bold ${isActive ? 'opacity-100' : 'opacity-80'}`}>{link.label}</span>
+                </Link>
+              )
+            })}
+            <button 
+              onClick={() => setIsMobileMenuOpen(true)}
+              className={`flex flex-col items-center justify-center w-16 h-full gap-1 transition-colors ${
+                isMobileMenuOpen ? 'text-zinc-900 dark:text-white' : 'text-zinc-500 dark:text-zinc-400'
+              }`}
+            >
+              <div className={`p-1.5 rounded-xl transition-all ${isMobileMenuOpen ? 'bg-zinc-100 dark:bg-zinc-800' : 'bg-transparent'}`}>
+                <Menu className={`w-6 h-6 ${isMobileMenuOpen ? 'stroke-[2.5px]' : 'stroke-2'}`} />
+              </div>
+              <span className={`text-[10px] font-bold ${isMobileMenuOpen ? 'opacity-100' : 'opacity-80'}`}>More</span>
+            </button>
+          </div>
+
+          {/* Mobile "More" Menu Overlay */}
+          {isMobileMenuOpen && (
+            <div className="fixed inset-0 z-[60] bg-zinc-900/40 dark:bg-black/60 backdrop-blur-sm animate-in fade-in duration-200 flex items-end sm:items-center justify-center">
+              <div 
+                className="bg-white dark:bg-zinc-950 w-full sm:w-[400px] h-[80vh] sm:h-auto sm:max-h-[80vh] sm:rounded-3xl rounded-t-3xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-full duration-300"
+              >
+                <div className="flex items-center justify-between p-6 border-b border-zinc-100 dark:border-zinc-800">
+                  <h2 className="text-xl font-black text-zinc-900 dark:text-white">Menu</h2>
+                  <button 
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="p-2 bg-zinc-100 dark:bg-zinc-800 rounded-full text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+                <div className="flex-1 overflow-y-auto p-4 space-y-2">
+                  {links.map((link) => {
+                    const isActive = pathname.startsWith(link.href)
+                    const Icon = link.icon
+                    return (
+                      <Link 
+                        key={link.href} 
+                        href={link.href}
+                        className={`flex items-center gap-4 px-4 py-4 rounded-2xl font-bold transition-all ${
+                          isActive 
+                            ? 'bg-zinc-100 text-zinc-900 dark:bg-zinc-900 dark:text-white' 
+                            : 'text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800/50'
+                        }`}
+                      >
+                        <Icon className={`w-6 h-6 ${isActive ? 'text-zinc-900 dark:text-white' : 'text-zinc-400'}`} />
+                        {link.label}
+                      </Link>
+                    )
+                  })}
+                </div>
+                <div className="p-6 border-t border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50">
+                  <LogoutButton />
+                </div>
+              </div>
+            </div>
+          )}
+        </>
+      )}
 
       {/* Global NGO Alarm Manager */}
       {!isSetup && <AlarmManager />}

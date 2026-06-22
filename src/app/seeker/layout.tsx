@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { LogoutButton } from '@/components/LogoutButton'
 import { LayoutDashboard, ListTodo, UserCircle } from 'lucide-react'
+import { useIsMobile } from '@/hooks/use-mobile'
 
 export default function SeekerLayout({
   children,
@@ -12,6 +13,7 @@ export default function SeekerLayout({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
+  const isMobile = useIsMobile()
 
   const links = [
     { href: '/seeker/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -19,7 +21,7 @@ export default function SeekerLayout({
     { href: '/seeker/profile', label: 'Profile', icon: UserCircle },
   ]
 
-  return (
+  const DesktopLayout = (
     <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-[#0A0A0A]">
       {/* Cinematic Navbar */}
       <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/70 dark:bg-black/70 border-b border-gray-200 dark:border-zinc-800 shadow-sm">
@@ -60,27 +62,6 @@ export default function SeekerLayout({
           </div>
 
           <div className="flex items-center gap-4">
-            {/* Mobile Nav Icons */}
-            <div className="flex md:hidden items-center gap-1">
-              {links.map((link) => {
-                const isActive = pathname === link.href
-                const Icon = link.icon
-                return (
-                  <Link 
-                    key={link.href} 
-                    href={link.href}
-                    className={`p-3 rounded-xl transition-all ${
-                      isActive 
-                        ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20' 
-                        : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-zinc-800/50'
-                    }`}
-                  >
-                    <Icon className="w-5 h-5" />
-                  </Link>
-                )
-              })}
-            </div>
-
             <div className="shrink-0 border-l border-gray-200 dark:border-zinc-800 pl-4 md:pl-6 ml-2 md:ml-0">
                <LogoutButton />
             </div>
@@ -93,4 +74,40 @@ export default function SeekerLayout({
       </main>
     </div>
   )
+
+  const MobileLayout = (
+    <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-[#0A0A0A] pb-20">
+      <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/70 dark:bg-black/70 border-b border-gray-200 dark:border-zinc-800">
+        <div className="px-4 h-16 flex items-center justify-between">
+          <Link href="/seeker/dashboard" className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-blue-600 text-white rounded-lg flex items-center justify-center font-black">
+              S
+            </div>
+            <span className="text-xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+              SahayaK
+            </span>
+          </Link>
+        </div>
+      </header>
+
+      <main className="flex-1 w-full relative">
+        {children}
+      </main>
+
+      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-xl border-t border-gray-200 dark:border-zinc-800 px-8 py-3 flex justify-between items-center pb-6">
+        {links.map(link => {
+          const isActive = pathname === link.href
+          const Icon = link.icon
+          return (
+             <Link key={link.href} href={link.href} className={`flex flex-col items-center gap-1 transition-colors ${isActive ? 'text-blue-600 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400'}`}>
+               <Icon className={`w-6 h-6 ${isActive ? 'fill-blue-100 dark:fill-blue-900/30 stroke-[2.5px]' : 'stroke-2'}`} />
+               <span className="text-[10px] font-bold">{link.label}</span>
+             </Link>
+          )
+        })}
+      </nav>
+    </div>
+  )
+
+  return isMobile ? MobileLayout : DesktopLayout
 }

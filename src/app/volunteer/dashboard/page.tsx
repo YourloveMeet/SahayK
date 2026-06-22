@@ -1,12 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Star } from 'lucide-react'
+import { useState, useEffect, useMemo } from 'react'
+import { Star, MapPin } from 'lucide-react'
 import DynamicTaskMap from '@/components/map/DynamicTaskMap'
 import { createClient } from '@/lib/supabase/client'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Database } from '@/types/database.types'
 import { calculateDistance } from '@/lib/utils'
+import { useIsMobile } from '@/hooks/use-mobile'
 
 // Components
 import { StatsBar } from '@/components/volunteer/StatsBar'
@@ -21,9 +22,11 @@ type Task = Database['public']['Tables']['tasks']['Row'] & { profiles: { full_na
 type Profile = Database['public']['Tables']['profiles']['Row']
 
 export default function VolunteerDashboard() {
+  const isMobile = useIsMobile()
   const supabase = createClient()
   const queryClient = useQueryClient()
 
+  // State setup
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number; addressText?: string } | null>(null)
   const [showLocationPrompt, setShowLocationPrompt] = useState(true) // Show on initial load
   
@@ -126,6 +129,7 @@ export default function VolunteerDashboard() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks', 'open'] })
       queryClient.invalidateQueries({ queryKey: ['tasks', 'active'] })
+      setSelectedTaskDetails(null)
     }
   })
 
@@ -227,33 +231,37 @@ export default function VolunteerDashboard() {
     return calculateDistance(userLocation.lat, userLocation.lng, lat, lng)
   }
 
-  const filteredTasks = openTasks?.filter(task => {
-    let effectiveCategory = task.category
-    if (task.category === 'other' && task.errand_details) {
-      effectiveCategory = 'errands'
-    }
+  const filteredTasks = useMemo(() => {
+    return openTasks?.filter(task => {
+      let effectiveCategory = task.category
+      if (task.category === 'other' && task.errand_details) {
+        effectiveCategory = 'errands'
+      }
 
-    if (category !== 'all' && effectiveCategory !== category) return false
-    if (isUrgentOnly && !task.is_urgent) return false
-    
-    // Only filter by distance if user location is set
-    if (userLocation) {
-      const dist = getDistance(task.latitude, task.longitude)
-      if (dist !== undefined && dist > distanceFilter) return false
-    }
-    
-    return true
-  }).sort((a, b) => {
-    const distA = getDistance(a.latitude, a.longitude)
-    const distB = getDistance(b.latitude, b.longitude)
-    if (distA !== undefined && distB !== undefined) return distA - distB
-    return 0
-  })
+      if (category !== 'all' && effectiveCategory !== category) return false
+      if (isUrgentOnly && !task.is_urgent) return false
+      
+      // Only filter by distance if user location is set
+      if (userLocation) {
+        const dist = getDistance(task.latitude, task.longitude)
+        if (dist !== undefined && dist > distanceFilter) return false
+      }
+      
+      return true
+    }).sort((a, b) => {
+      const distA = getDistance(a.latitude, a.longitude)
+      const distB = getDistance(b.latitude, b.longitude)
+      if (distA !== undefined && distB !== undefined) return distA - distB
+      return 0
+    })
+  }, [openTasks, category, isUrgentOnly, userLocation, distanceFilter])
 
-  // Prepare map center
   const mapCenter = userLocation ? [userLocation.lat, userLocation.lng] as [number, number] : undefined
 
-  return (
+  // ==========================================
+  // DESKTOP LAYOUT (ORIGINAL RESTORED)
+  // ==========================================
+  const DesktopDashboard = () => (
     <div className="max-w-[1600px] mx-auto space-y-8 p-4 md:p-8 relative">
       <LocationPromptModal 
         isOpen={showLocationPrompt}
@@ -406,6 +414,72 @@ export default function VolunteerDashboard() {
           </div>
         </div>
       )}
+    </div>
+  )
+
+  // ==========================================
+  // MOBILE LAYOUT (SOCIAL FEED)
+  // ==========================================
+  const MobileDashboard = () => (
+    <div className="flex flex-col gap-6 w-full px-4 pt-6 pb-20 bg-slate-50 dark:bg-[#0A0A0A] min-h-screen">
+      <LocationPromptModal isOpen={showLocationPrompt} onSelectLiveLocation={handleLiveLocation} onSelectManualLocation={handleManualLocation} />
+
+      {/* Header & Location */}
+      <div className="flex flex-col gap-3 mb-2">
+        <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+          Welcome back, {userProfile?.full_name?.split(' ')[0] || 'Volunteer'}
+        </h1>
+        <button 
+          onClick={() => setShowLocationPrompt(true)}
+          className="flex items-center gap-2 w-fit px-4 py-2 bg-white dark:bg-zinc-900 rounded-full shadow-sm border border-gray-200 dark:border-zinc-800 text-gray-600 dark:text-gray-300 font-bold hover:scale-105 transition-transform"
+        >
+          <MapPin className="w-4 h-4 text-blue-500" />
+          <span className="truncate max-w-[200px]">{userLocation?.addressText || 'Set your location'}</span>
+        </button>
+      </div>
+
+      {/* Active Task (If Any) */}
+      {activeTasks && activeTasks.length > 0 && (
+        <div className="flex flex-col gap-3 mt-2">
+          <h2 className="text-sm uppercase font-black tracking-widest text-blue-500 flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+            Active Mission
+          </h2>
+          {activeTasks.map(task => (
+            <div key={task.id} className="ring-2 ring-blue-500/50 rounded-2xl shadow-lg">
+              <TaskCard task={task} isActive={true} onCompleteClick={(t) => setTaskToComplete(t)} onUpdateStatus={(taskId, newStatus) => updateTaskStatusMutation.mutate({ taskId, statusDetail: newStatus })} />
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Feed Divider / Filters */}
+      <div className="sticky top-16 z-30 pt-4 pb-2 bg-slate-50/90 dark:bg-[#0A0A0A]/90 backdrop-blur-xl border-b border-gray-200/50 dark:border-zinc-800/50">
+         <FilterBar category={category} setCategory={setCategory} distance={distanceFilter} setDistance={setDistanceFilter} isUrgentOnly={isUrgentOnly} setIsUrgentOnly={setIsUrgentOnly} />
+      </div>
+
+      {/* Tasks Feed */}
+      <div className="flex flex-col gap-6">
+        {isLoadingTasks ? (
+          [1, 2, 3].map(i => <div key={i} className="h-64 bg-gray-200 dark:bg-zinc-800 animate-pulse rounded-[1.5rem]"></div>)
+        ) : filteredTasks?.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 text-gray-500 bg-white/50 dark:bg-zinc-900/50 rounded-3xl border border-gray-200 dark:border-zinc-800">
+            <Star className="w-12 h-12 text-gray-300 dark:text-zinc-700 mb-4" />
+            <p className="font-bold text-lg text-gray-900 dark:text-white">You're all caught up!</p>
+            <p className="text-sm mt-1">No new requests match your filters right now.</p>
+          </div>
+        ) : (
+          filteredTasks?.map(task => (
+            <TaskCard key={task.id} task={task} distance={getDistance(task.latitude, task.longitude)} onViewClick={(t) => setSelectedTaskDetails(t)} />
+          ))
+        )}
+      </div>
+    </div>
+  )
+
+  return (
+    <>
+      {isMobile ? <MobileDashboard /> : <DesktopDashboard />}
 
       <CompletionModal 
         isOpen={!!taskToComplete} 
@@ -431,6 +505,6 @@ export default function VolunteerDashboard() {
         distance={selectedTaskDetails ? getDistance(selectedTaskDetails.latitude, selectedTaskDetails.longitude) : undefined}
         onAccept={(taskId) => acceptTaskMutation.mutate(taskId)}
       />
-    </div>
+    </>
   )
 }

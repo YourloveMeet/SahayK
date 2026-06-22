@@ -1,10 +1,14 @@
 'use client'
 
 import React from 'react'
-import { UserCircle, Settings, ShieldCheck, HelpCircle } from 'lucide-react'
+import { UserCircle, Settings, ShieldCheck, HelpCircle, ChevronRight } from 'lucide-react'
+import { useIsMobile } from '@/hooks/use-mobile'
+import { LogoutButton } from '@/components/LogoutButton'
 
 export default function SeekerProfilePage() {
-  return (
+  const isMobile = useIsMobile()
+
+  const DesktopProfile = () => (
     <div className="max-w-[1600px] mx-auto p-4 md:p-8 space-y-8 relative">
       {/* Background Orbs */}
       <div className="fixed top-20 right-0 w-[500px] h-[500px] bg-blue-500/10 dark:bg-blue-600/10 rounded-full blur-[150px] pointer-events-none z-0"></div>
@@ -65,4 +69,72 @@ export default function SeekerProfilePage() {
       </div>
     </div>
   )
+
+  const MobileProfile = () => (
+    <div className="p-4 space-y-6 bg-slate-50 dark:bg-[#0A0A0A] min-h-screen text-zinc-900 dark:text-zinc-50">
+      <div className="flex flex-col gap-1 pt-2 px-2">
+        <h1 className="text-4xl font-black tracking-tight leading-none bg-gradient-to-r from-gray-900 to-gray-500 dark:from-white dark:to-gray-400 bg-clip-text text-transparent pb-1">
+          Profile
+        </h1>
+        <p className="text-sm font-bold text-gray-500 dark:text-gray-400">Your seeker account details</p>
+      </div>
+
+      <div className="bg-white dark:bg-zinc-900 rounded-[2rem] border border-gray-200/80 dark:border-zinc-800/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] p-6 flex flex-col items-center gap-4 text-center">
+        <div className="w-24 h-24 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center border-4 border-white dark:border-zinc-900 shadow-md">
+           <UserCircle className="w-10 h-10 text-blue-500" />
+        </div>
+        <div>
+          <p className="text-2xl font-black text-gray-900 dark:text-white">Seeker</p>
+          <span className="inline-block mt-2 px-3 py-1 bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-gray-400 text-xs font-black uppercase tracking-widest rounded-md">Basic Account</span>
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        <button className="w-full flex items-center justify-between bg-white dark:bg-zinc-900 p-5 rounded-2xl border border-gray-200/80 dark:border-zinc-800/80 shadow-[0_4px_20px_rgb(0,0,0,0.03)] dark:shadow-[0_4px_20px_rgb(0,0,0,0.1)] active:scale-95 transition-transform text-left">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-blue-600 text-white rounded-xl flex items-center justify-center">
+              <ShieldCheck className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="font-extrabold text-gray-900 dark:text-white text-lg">Verification</h3>
+              <p className="text-sm font-bold text-gray-500">Status: Basic</p>
+            </div>
+          </div>
+          <ChevronRight className="w-5 h-5 text-gray-400" />
+        </button>
+
+        <button className="w-full flex items-center justify-between bg-white dark:bg-zinc-900 p-5 rounded-2xl border border-gray-200/80 dark:border-zinc-800/80 shadow-[0_4px_20px_rgb(0,0,0,0.03)] dark:shadow-[0_4px_20px_rgb(0,0,0,0.1)] active:scale-95 transition-transform text-left">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl flex items-center justify-center">
+              <HelpCircle className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="font-extrabold text-gray-900 dark:text-white text-lg">Help & Support</h3>
+              <p className="text-sm font-bold text-gray-500">Contact administrators</p>
+            </div>
+          </div>
+          <ChevronRight className="w-5 h-5 text-gray-400" />
+        </button>
+
+        <button className="w-full flex items-center justify-between bg-white dark:bg-zinc-900 p-5 rounded-2xl border border-gray-200/80 dark:border-zinc-800/80 shadow-[0_4px_20px_rgb(0,0,0,0.03)] dark:shadow-[0_4px_20px_rgb(0,0,0,0.1)] active:scale-95 transition-transform text-left">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white border border-gray-200 dark:border-zinc-700 rounded-xl flex items-center justify-center">
+              <Settings className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="font-extrabold text-gray-900 dark:text-white text-lg">Settings</h3>
+              <p className="text-sm font-bold text-gray-500">Language & Address</p>
+            </div>
+          </div>
+          <ChevronRight className="w-5 h-5 text-gray-400" />
+        </button>
+      </div>
+
+      <div className="pt-4 flex justify-center pb-8">
+        <LogoutButton />
+      </div>
+    </div>
+  )
+
+  return isMobile ? <MobileProfile /> : <DesktopProfile />
 }

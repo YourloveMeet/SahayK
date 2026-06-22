@@ -5,10 +5,12 @@ import { createClient } from '@/lib/supabase/client'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Users, ListTodo, Bell, CheckCircle, Clock, Repeat, ArrowRight, Activity, Calendar } from 'lucide-react'
 import Link from 'next/link'
+import { useIsMobile } from '@/hooks/use-mobile'
 
 export default function NGODashboard() {
   const supabase = createClient()
   const queryClient = useQueryClient()
+  const isMobile = useIsMobile()
   
   const [snoozedIds, setSnoozedIds] = useState<Record<string, number>>({})
 
@@ -170,7 +172,161 @@ export default function NGODashboard() {
     }
   })
 
-  return (
+  // ==========================================
+  // MOBILE VIEW
+  // ==========================================
+  const MobileDashboard = () => (
+    <div className="p-4 space-y-6 bg-slate-50 dark:bg-[#0A0A0A] min-h-screen text-zinc-900 dark:text-zinc-50 pb-28">
+      {/* Header Section */}
+      <div className="flex flex-col gap-1 pt-2">
+        <p className="text-sm font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest flex items-center gap-1.5">
+          <Activity className="w-3.5 h-3.5" /> Overview
+        </p>
+        <h1 className="text-3xl font-black tracking-tight leading-none bg-gradient-to-r from-zinc-900 to-zinc-500 dark:from-white dark:to-zinc-400 bg-clip-text text-transparent">
+          Welcome back,
+        </h1>
+        <h2 className="text-2xl font-extrabold text-zinc-800 dark:text-zinc-200 truncate">
+          {ngoProfile?.ngo_name || 'Admin'}
+        </h2>
+      </div>
+
+      {/* Metrics Grid (Stacked for Mobile) */}
+      <div className="grid grid-cols-2 gap-3">
+        {/* Metric Card 1 */}
+        <div className="p-5 bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800/80 rounded-[1.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] flex flex-col justify-between aspect-square">
+          <div className="w-10 h-10 rounded-full bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400 mb-2">
+            <Users className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="text-[11px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-1">Residents</p>
+            <p className="text-3xl font-black">{residentsCount ?? '-'}</p>
+          </div>
+        </div>
+
+        {/* Metric Card 2 */}
+        <div className="p-5 bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800/80 rounded-[1.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] flex flex-col justify-between aspect-square">
+          <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center text-blue-600 dark:text-blue-400 mb-2">
+            <ListTodo className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="text-[11px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-1">Active Tasks</p>
+            <p className="text-3xl font-black">{activeTasksCount ?? '-'}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Reminders Section */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between px-1">
+          <h2 className="text-xl font-black flex items-center gap-2">
+            <div className="p-1.5 bg-zinc-900 dark:bg-white rounded-lg">
+              <Bell className="w-4 h-4 text-white dark:text-zinc-900" />
+            </div>
+            Today's Reminders
+          </h2>
+          <div className="text-xs font-bold text-zinc-500 dark:text-zinc-400 bg-zinc-200/50 dark:bg-zinc-800/50 px-2.5 py-1 rounded-full">
+            {new Date().toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+          </div>
+        </div>
+        
+        <div className="space-y-3">
+          {reminders && reminders.length > 0 ? (
+            reminders.map(reminder => {
+              const isCompleted = reminder.completed;
+              const dateObj = reminder.due_date ? new Date(reminder.due_date) : null;
+              const timeStr = dateObj ? dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+              
+              const snoozeUntil = snoozedIds[reminder.id]
+              const isSnoozed = !isCompleted && snoozeUntil && snoozeUntil > Date.now()
+
+              return (
+                <div key={reminder.id} className={`p-5 rounded-[1.5rem] border ${
+                  isCompleted ? 'bg-zinc-100/50 dark:bg-zinc-900/30 border-zinc-200/50 dark:border-zinc-800/50' : 
+                  (isSnoozed ? 'bg-orange-50/50 dark:bg-orange-950/20 border-orange-200/50 dark:border-orange-900/30' : 'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-none')
+                }`}>
+                  <div className="flex items-start gap-3">
+                    <div className="mt-0.5">
+                      {isCompleted ? (
+                         <div className="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center">
+                           <CheckCircle className="w-4 h-4 text-zinc-400" />
+                         </div>
+                      ) : (
+                         <div className="w-8 h-8 rounded-full bg-zinc-900 dark:bg-white flex items-center justify-center">
+                           <Clock className="w-4 h-4 text-white dark:text-zinc-900" />
+                         </div>
+                      )}
+                    </div>
+                    
+                    <div className="flex-1 min-w-0 space-y-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className={`text-sm font-black ${isCompleted ? 'text-zinc-400 line-through' : 'text-zinc-900 dark:text-white'}`}>
+                          {timeStr}
+                        </span>
+                        {isSnoozed && (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-300">
+                            Snoozed
+                          </span>
+                        )}
+                      </div>
+                      <h4 className={`text-base font-bold leading-tight ${isCompleted ? 'text-zinc-400 line-through' : 'text-zinc-800 dark:text-zinc-200'}`}>
+                        {reminder.title}
+                      </h4>
+                      <p className={`text-xs font-semibold ${isCompleted ? 'text-zinc-400' : 'text-zinc-500 dark:text-zinc-400'}`}>
+                        For: <Link href={`/ngo/residents/${reminder.resident_id}`} className="underline decoration-zinc-300 dark:decoration-zinc-700 underline-offset-2">{reminder.resident_name}</Link>
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="mt-4 pt-4 border-t border-zinc-100 dark:border-zinc-800/60">
+                    {!isCompleted ? (
+                      <button 
+                        onClick={() => completeReminderMutation.mutate(reminder)}
+                        disabled={completeReminderMutation.isPending}
+                        className="w-full py-3 bg-zinc-900 hover:bg-black dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-zinc-900 font-bold text-sm rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
+                      >
+                        <CheckCircle className="w-4 h-4" />
+                        Mark Done
+                      </button>
+                    ) : (
+                      <div className="flex items-center justify-between">
+                        <span className="text-zinc-400 font-bold text-xs flex items-center gap-1.5">
+                          <CheckCircle className="w-3.5 h-3.5" /> Completed
+                        </span>
+                        <button 
+                          onClick={() => repeatReminderMutation.mutate(reminder)}
+                          disabled={repeatReminderMutation.isPending}
+                          className="px-4 py-2 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 font-bold text-xs rounded-lg transition-all flex items-center gap-1.5"
+                        >
+                          <Repeat className="w-3 h-3" />
+                          Repeat Tomorrow
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )
+            })
+          ) : (
+            <div className="text-center py-12 px-4 bg-white dark:bg-zinc-900 rounded-[1.5rem] border border-zinc-200 dark:border-zinc-800 shadow-sm">
+              <div className="w-16 h-16 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="w-8 h-8 text-zinc-400 dark:text-zinc-500" />
+              </div>
+              <h3 className="text-xl font-black text-zinc-900 dark:text-zinc-100 mb-1">All caught up!</h3>
+              <p className="text-sm text-zinc-500 dark:text-zinc-400 font-medium">
+                No pending reminders for today.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  // ==========================================
+  // DESKTOP VIEW
+  // ==========================================
+  const DesktopDashboard = () => (
     <div className="max-w-6xl mx-auto p-4 md:p-10 space-y-8 bg-zinc-50 dark:bg-[#09090b] min-h-screen text-zinc-900 dark:text-zinc-50">
       {/* Header Section */}
       <div className="flex flex-col gap-2">
@@ -313,5 +469,7 @@ export default function NGODashboard() {
         </div>
       </div>
     </div>
-  )
+  );
+
+  return isMobile ? <MobileDashboard /> : <DesktopDashboard />;
 }

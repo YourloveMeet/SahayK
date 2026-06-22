@@ -48,18 +48,20 @@ export default function NGODetailPage() {
       <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl overflow-hidden shadow-sm">
         <div className="h-24 bg-gradient-to-r from-zinc-900 to-zinc-700 dark:from-zinc-800 dark:to-zinc-900" />
         <div className="p-8 pt-0">
-          <div className="-mt-10 mb-6 flex items-end gap-5">
-            {ngo.logo_url ? (
-              <img src={ngo.logo_url} alt={ngo.ngo_name} className="w-20 h-20 rounded-2xl object-cover border-4 border-white dark:border-zinc-900 shadow-lg bg-white dark:bg-zinc-900" />
-            ) : (
-              <div className="w-20 h-20 rounded-2xl bg-white dark:bg-zinc-800 border-4 border-white dark:border-zinc-900 shadow-lg flex items-center justify-center">
-                <Building className="w-10 h-10 text-zinc-400" />
-              </div>
-            )}
+          <div className="flex flex-col md:flex-row md:items-end gap-3 md:gap-5 mb-6">
+            <div className="-mt-10 shrink-0">
+              {ngo.logo_url ? (
+                <img src={ngo.logo_url} alt={ngo.ngo_name} className="w-20 h-20 rounded-2xl object-cover border-4 border-white dark:border-zinc-900 shadow-lg bg-white dark:bg-zinc-900 relative z-10" />
+              ) : (
+                <div className="w-20 h-20 rounded-2xl bg-white dark:bg-zinc-800 border-4 border-white dark:border-zinc-900 shadow-lg flex items-center justify-center relative z-10">
+                  <Building className="w-10 h-10 text-zinc-400" />
+                </div>
+              )}
+            </div>
             <div className="pb-1">
-              <h1 className="text-3xl font-black tracking-tight text-zinc-900 dark:text-white">{ngo.ngo_name}</h1>
+              <h1 className="text-2xl md:text-3xl font-black tracking-tight text-zinc-900 dark:text-white leading-tight">{ngo.ngo_name}</h1>
               {ngo.registration_number && (
-                <p className="text-sm font-bold text-zinc-500">Reg: {ngo.registration_number}</p>
+                <p className="text-sm font-bold text-zinc-500 mt-1">Reg: {ngo.registration_number}</p>
               )}
             </div>
           </div>
