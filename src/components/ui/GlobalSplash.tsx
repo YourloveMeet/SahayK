@@ -49,9 +49,23 @@ export function GlobalSplash() {
         setTimeout(() => setShow(false), 1000)
       }, duration)
       
-      return () => clearTimeout(timer)
+      return () => {
+        clearTimeout(timer)
+        document.body.style.overflow = ''
+      }
+    } else {
+      document.body.style.overflow = ''
     }
   }, [pathname]) // Re-evaluate whenever the route changes (e.g. redirected from login)
+
+  useEffect(() => {
+    if (show && !isExiting) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => { document.body.style.overflow = '' }
+  }, [show, isExiting])
 
   if (!show) return null
 

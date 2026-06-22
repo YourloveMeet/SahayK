@@ -17,7 +17,7 @@ export function FadeOutOverlay() {
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 1, ease: "easeOut" }}
-          className="fixed z-[9999] bg-[#0A0A0A] pointer-events-none"
+          className="fixed z-[99999] bg-[#0A0A0A] pointer-events-auto"
           style={{ top: '-20px', left: '-20px', right: '-20px', bottom: '-100px' }}
         />
       )}

@@ -142,7 +142,7 @@ export default function NGOLayout({
       )}
 
       {/* Main Content */}
-      <main className={`flex-1 w-full relative overflow-x-hidden ${isSetup ? '' : (isMobile ? 'pt-16 pb-20' : '')} h-screen overflow-y-auto`}>
+      <main className={`flex-1 w-full relative ${isSetup ? '' : (isMobile ? 'pt-16 pb-20' : '')} h-screen overflow-y-auto`}>
         {children}
       </main>
 
