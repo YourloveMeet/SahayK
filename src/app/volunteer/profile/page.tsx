@@ -46,7 +46,7 @@ export default function VolunteerProfilePage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
         
         {/* Verification Status */}
-        <div className="backdrop-blur-xl bg-white/60 dark:bg-black/60 rounded-[1rem] border border-gray-200 dark:border-zinc-800 shadow-xl flex flex-col overflow-hidden p-6 hover:scale-[1.02] transition-transform cursor-pointer group">
+        <div onClick={() => alert('Verification feature is coming soon!')} className="backdrop-blur-xl bg-white/60 dark:bg-black/60 rounded-[1rem] border border-gray-200 dark:border-zinc-800 shadow-xl flex flex-col overflow-hidden p-6 hover:scale-[1.02] transition-transform cursor-pointer group">
           <div className="w-12 h-12 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl flex items-center justify-center mb-4 shadow-md">
             <ShieldCheck className="w-6 h-6" />
           </div>
@@ -59,7 +59,7 @@ export default function VolunteerProfilePage() {
         </div>
 
         {/* Reputation & Badges */}
-        <div className="backdrop-blur-xl bg-white/60 dark:bg-black/60 rounded-[1rem] border border-gray-200 dark:border-zinc-800 shadow-xl flex flex-col overflow-hidden p-6 hover:scale-[1.02] transition-transform cursor-pointer group">
+        <div onClick={() => alert('Reputation feature is coming soon!')} className="backdrop-blur-xl bg-white/60 dark:bg-black/60 rounded-[1rem] border border-gray-200 dark:border-zinc-800 shadow-xl flex flex-col overflow-hidden p-6 hover:scale-[1.02] transition-transform cursor-pointer group">
           <div className="w-12 h-12 bg-[#b39552]/10 text-[#b39552] rounded-xl flex items-center justify-center mb-4 shadow-md">
             <Award className="w-6 h-6" />
           </div>
@@ -72,7 +72,7 @@ export default function VolunteerProfilePage() {
         </div>
 
         {/* Settings */}
-        <div className="backdrop-blur-xl bg-white/60 dark:bg-black/60 rounded-[1rem] border border-gray-200 dark:border-zinc-800 shadow-xl flex flex-col overflow-hidden p-6 hover:scale-[1.02] transition-transform cursor-pointer group">
+        <div onClick={() => alert('Settings feature is coming soon!')} className="backdrop-blur-xl bg-white/60 dark:bg-black/60 rounded-[1rem] border border-gray-200 dark:border-zinc-800 shadow-xl flex flex-col overflow-hidden p-6 hover:scale-[1.02] transition-transform cursor-pointer group">
           <div className="w-12 h-12 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white rounded-xl flex items-center justify-center mb-4 shadow-md border border-gray-200 dark:border-zinc-700">
             <Settings className="w-6 h-6" />
           </div>
@@ -108,7 +108,7 @@ export default function VolunteerProfilePage() {
       </div>
 
       <div className="space-y-3">
-        <button className="w-full flex items-center justify-between bg-white dark:bg-zinc-900 p-5 rounded-2xl border border-gray-200/80 dark:border-zinc-800/80 shadow-[0_4px_20px_rgb(0,0,0,0.03)] dark:shadow-[0_4px_20px_rgb(0,0,0,0.1)] active:scale-95 transition-transform text-left">
+        <button onClick={() => alert('Verification feature is coming soon!')} className="w-full flex items-center justify-between bg-white dark:bg-zinc-900 p-5 rounded-2xl border border-gray-200/80 dark:border-zinc-800/80 shadow-[0_4px_20px_rgb(0,0,0,0.03)] dark:shadow-[0_4px_20px_rgb(0,0,0,0.1)] active:scale-95 transition-transform text-left">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-blue-50 dark:bg-blue-500/10 text-blue-500 rounded-xl flex items-center justify-center">
               <ShieldCheck className="w-6 h-6" />
@@ -121,7 +121,7 @@ export default function VolunteerProfilePage() {
           <ChevronRight className="w-5 h-5 text-gray-400" />
         </button>
 
-        <button className="w-full flex items-center justify-between bg-white dark:bg-zinc-900 p-5 rounded-2xl border border-gray-200/80 dark:border-zinc-800/80 shadow-[0_4px_20px_rgb(0,0,0,0.03)] dark:shadow-[0_4px_20px_rgb(0,0,0,0.1)] active:scale-95 transition-transform text-left">
+        <button onClick={() => alert('Reputation feature is coming soon!')} className="w-full flex items-center justify-between bg-white dark:bg-zinc-900 p-5 rounded-2xl border border-gray-200/80 dark:border-zinc-800/80 shadow-[0_4px_20px_rgb(0,0,0,0.03)] dark:shadow-[0_4px_20px_rgb(0,0,0,0.1)] active:scale-95 transition-transform text-left">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-[#b39552]/10 text-[#b39552] rounded-xl flex items-center justify-center">
               <Award className="w-6 h-6" />
@@ -134,7 +134,7 @@ export default function VolunteerProfilePage() {
           <ChevronRight className="w-5 h-5 text-gray-400" />
         </button>
 
-        <button className="w-full flex items-center justify-between bg-white dark:bg-zinc-900 p-5 rounded-2xl border border-gray-200/80 dark:border-zinc-800/80 shadow-[0_4px_20px_rgb(0,0,0,0.03)] dark:shadow-[0_4px_20px_rgb(0,0,0,0.1)] active:scale-95 transition-transform text-left">
+        <button onClick={() => alert('Settings feature is coming soon!')} className="w-full flex items-center justify-between bg-white dark:bg-zinc-900 p-5 rounded-2xl border border-gray-200/80 dark:border-zinc-800/80 shadow-[0_4px_20px_rgb(0,0,0,0.03)] dark:shadow-[0_4px_20px_rgb(0,0,0,0.1)] active:scale-95 transition-transform text-left">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-white border border-gray-200 dark:border-zinc-700 rounded-xl flex items-center justify-center">
               <Settings className="w-6 h-6" />

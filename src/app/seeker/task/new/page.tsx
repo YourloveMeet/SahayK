@@ -19,18 +19,30 @@ const taskSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters'),
   description: z.string().min(2, 'Description must be at least 2 characters'),
   category: z.string().min(1, 'Please select a category'),
-  isUrgent: z.boolean(),
+  isUrgent: z.boolean().default(false),
   areaName: z.string().optional(),
   latitude: z.number({ message: 'Please select a location on the map' }),
   longitude: z.number({ message: 'Please select a location on the map' }),
   errandItems: z.array(z.object({
-    name: z.string().min(1, 'Item name is required'),
-    quantity: z.number().min(1, 'Quantity must be at least 1'),
+    name: z.string().optional(),
+    quantity: z.number().min(1, 'Quantity must be at least 1').optional(),
     notes: z.string().optional()
   })).optional(),
   preferredShop: z.string().optional(),
   estimatedBudget: z.number().optional()
-})
+}).superRefine((data, ctx) => {
+  if (data.category === 'errands' && data.errandItems) {
+    data.errandItems.forEach((item, index) => {
+      if (!item.name || item.name.length < 1) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Item name is required',
+          path: ['errandItems', index, 'name']
+        });
+      }
+    });
+  }
+});
 
 function NewTaskForm() {
   const searchParams = useSearchParams()
@@ -84,7 +96,8 @@ function NewTaskForm() {
     resolver: zodResolver(taskSchema),
     defaultValues: {
       category: prefillCategory || '',
-      errandItems: [{ name: '', quantity: 1, notes: '' }]
+      errandItems: [{ name: '', quantity: 1, notes: '' }],
+      isUrgent: false
     }
   })
 

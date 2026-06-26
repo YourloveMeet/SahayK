@@ -159,28 +159,27 @@ export default function CatalogViewer({ categories }: { categories: any[] }) {
               </button>
             </div>
 
-            {/* Modal Body Scroll Container */}
-            <div className="flex-1 overflow-y-auto p-0 md:p-8 flex flex-col">
-              
-              {/* Sticky Segmented Control Tabs */}
-              <div className="sticky top-0 z-20 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md px-6 py-4 md:p-0 md:mb-8 border-b border-gray-100 dark:border-zinc-900 md:border-none">
-                <div className="flex bg-gray-100 dark:bg-zinc-900 p-1 rounded-2xl w-full max-w-lg mx-auto">
-                  <button 
-                    onClick={() => setActiveTab('volunteer')}
-                    className={`flex-1 py-3 px-4 rounded-xl font-bold text-sm md:text-base transition-all ${activeTab === 'volunteer' ? 'bg-white dark:bg-zinc-800 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
-                  >
-                    Request Volunteer
-                  </button>
-                  <button 
-                    onClick={() => setActiveTab('self')}
-                    className={`flex-1 py-3 px-4 rounded-xl font-bold text-sm md:text-base transition-all ${activeTab === 'self' ? 'bg-white dark:bg-zinc-800 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
-                  >
-                    Try It Yourself
-                  </button>
-                </div>
+            {/* Segmented Control Tabs (Fixed below header) */}
+            <div className="z-20 bg-white dark:bg-zinc-950 px-6 py-4 md:py-6 border-b border-gray-100 dark:border-zinc-900 shrink-0">
+              <div className="flex bg-gray-100 dark:bg-zinc-900 p-1 rounded-2xl w-full max-w-lg mx-auto">
+                <button 
+                  onClick={() => setActiveTab('volunteer')}
+                  className={`flex-1 py-3 px-4 rounded-xl font-bold text-sm md:text-base transition-all ${activeTab === 'volunteer' ? 'bg-white dark:bg-zinc-800 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
+                >
+                  Request Volunteer
+                </button>
+                <button 
+                  onClick={() => setActiveTab('self')}
+                  className={`flex-1 py-3 px-4 rounded-xl font-bold text-sm md:text-base transition-all ${activeTab === 'self' ? 'bg-white dark:bg-zinc-800 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'}`}
+                >
+                  Try It Yourself
+                </button>
               </div>
+            </div>
 
-              <div className="p-6 md:p-0 flex-1 flex flex-col">
+            {/* Modal Body Scroll Container */}
+            <div className="flex-1 overflow-y-auto p-6 md:p-8 flex flex-col">
+              <div className="flex-1 flex flex-col">
                 
                 {/* Right Column: Request Volunteer (Now Tab 1) */}
                 {activeTab === 'volunteer' && (
