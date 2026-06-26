@@ -119,6 +119,8 @@ export type Database = {
           role: string
           tasks_completed: number | null
           updated_at: string | null
+          preferred_causes: string[] | null
+          verification_status: string | null
         }
         Insert: {
           area_name?: string | null
@@ -137,6 +139,8 @@ export type Database = {
           role: string
           tasks_completed?: number | null
           updated_at?: string | null
+          preferred_causes?: string[] | null
+          verification_status?: string | null
         }
         Update: {
           area_name?: string | null
@@ -155,8 +159,96 @@ export type Database = {
           role?: string
           tasks_completed?: number | null
           updated_at?: string | null
+          preferred_causes?: string[] | null
+          verification_status?: string | null
         }
         Relationships: []
+      }
+      donations: {
+        Row: {
+          id: string
+          donor_id: string
+          recipient_id: string
+          amount: number
+          cause: string
+          status: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          donor_id: string
+          recipient_id: string
+          amount: number
+          cause: string
+          status?: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          donor_id?: string
+          recipient_id?: string
+          amount?: number
+          cause?: string
+          status?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "donations_donor_id_fkey"
+            columns: ["donor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "donations_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      seeker_financial_requests: {
+        Row: {
+          id: string
+          seeker_id: string
+          title: string
+          description: string
+          amount_needed: number
+          urgency: string
+          status: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          seeker_id: string
+          title: string
+          description: string
+          amount_needed: number
+          urgency: string
+          status?: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          seeker_id?: string
+          title?: string
+          description?: string
+          amount_needed?: number
+          urgency?: string
+          status?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seeker_financial_requests_seeker_id_fkey"
+            columns: ["seeker_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       schemes: {
         Row: {

@@ -33,7 +33,7 @@ export default async function SeekerDashboard() {
       </div>
 
       {/* Primary Actions (Dual Card Split View) */}
-      <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         
         {/* Card 1: Document Help */}
         <Link 
@@ -85,6 +85,35 @@ export default async function SeekerDashboard() {
           
           <div className="relative z-10 mt-8 flex items-center text-rose-600 dark:text-rose-400 font-bold">
             Request Help 
+            <ArrowRight className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-2" />
+          </div>
+        </Link>
+
+        {/* Card 3: Financial Assistance */}
+        <Link 
+          href="/seeker/financial-request/new"
+          className="group relative overflow-hidden rounded-3xl border border-emerald-100 dark:border-emerald-900/50 bg-emerald-50/50 dark:bg-emerald-950/20 p-8 transition-all duration-300 hover:shadow-xl hover:shadow-emerald-500/10 hover:-translate-y-1 flex flex-col h-full"
+        >
+          {/* Decorative Background */}
+          <div className="absolute -right-10 -top-10 w-40 h-40 bg-emerald-200/50 dark:bg-emerald-900/30 rounded-full blur-3xl group-hover:bg-emerald-300/50 dark:group-hover:bg-emerald-800/40 transition-colors"></div>
+          
+          <div className="w-16 h-16 rounded-2xl bg-emerald-100 dark:bg-emerald-900 flex items-center justify-center mb-6 shadow-inner border border-emerald-200 dark:border-emerald-800 relative z-10 text-emerald-600 dark:text-emerald-400">
+            <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          
+          <div className="relative z-10 flex-1">
+            <h2 className="text-2xl font-black text-emerald-950 dark:text-emerald-100 mb-3 group-hover:text-emerald-700 dark:group-hover:text-emerald-300 transition-colors">
+              Financial Assistance
+            </h2>
+            <p className="text-lg text-emerald-800/70 dark:text-emerald-200/70 font-medium leading-relaxed">
+              Request direct sponsorship from verified donors for medical treatments, education, or essential needs.
+            </p>
+          </div>
+          
+          <div className="relative z-10 mt-8 flex items-center text-emerald-600 dark:text-emerald-400 font-bold">
+            Request Funds
             <ArrowRight className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-2" />
           </div>
         </Link>

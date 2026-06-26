@@ -29,7 +29,7 @@ export function LeaderboardWidget({ leaders }: LeaderboardWidgetProps) {
         </h2>
       </div>
       
-      <div className="p-5 space-y-4 flex-1 overflow-y-auto">
+      <div className="p-5 space-y-4 flex-1 overflow-y-auto overflow-x-hidden hide-scrollbar">
         {leaders.map((leader, index) => {
           const isTop = index === 0;
           return (

@@ -19,7 +19,7 @@ const taskSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters'),
   description: z.string().min(2, 'Description must be at least 2 characters'),
   category: z.string().min(1, 'Please select a category'),
-  isUrgent: z.boolean().default(false),
+  isUrgent: z.boolean(),
   areaName: z.string().optional(),
   latitude: z.number({ message: 'Please select a location on the map' }),
   longitude: z.number({ message: 'Please select a location on the map' }),

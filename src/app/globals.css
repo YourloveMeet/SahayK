@@ -138,3 +138,17 @@
     scrollbar-width: none;
   }
 }
+
+/* Hide Google Translate Toolbar */
+.skiptranslate > iframe.skiptranslate {
+  display: none !important;
+  visibility: hidden !important;
+}
+body {
+  top: 0 !important;
+}
+/* Prevent hover styling on translated text */
+font {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
