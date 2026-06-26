@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react';
-import { Trophy, Phone, ShieldCheck, UserCircle, MapPin } from 'lucide-react';
+import { Trophy, Phone, ShieldCheck, UserCircle, MapPin, X } from 'lucide-react';
 
 interface Leader {
   id: string;
@@ -17,7 +17,7 @@ interface LeaderboardWidgetProps {
 }
 
 export function LeaderboardWidget({ leaders }: LeaderboardWidgetProps) {
-  const [hoveredLeader, setHoveredLeader] = useState<Leader | null>(null);
+  const [selectedLeader, setSelectedLeader] = useState<Leader | null>(null);
 
   if (!leaders || leaders.length === 0) return null;
 
@@ -35,9 +35,8 @@ export function LeaderboardWidget({ leaders }: LeaderboardWidgetProps) {
           return (
             <div
               key={leader.id}
-              className="relative"
-              onMouseEnter={() => setHoveredLeader(leader)}
-              onMouseLeave={() => setHoveredLeader(null)}
+              className=""
+              onClick={() => setSelectedLeader(leader)}
             >
               <div
                 className={`flex items-center justify-between p-4 rounded-xl border transition-all cursor-pointer ${
@@ -78,55 +77,88 @@ export function LeaderboardWidget({ leaders }: LeaderboardWidgetProps) {
                 </div>
               </div>
 
-              {/* Discord-Style Hover Card */}
-              {hoveredLeader?.id === leader.id && (
-                <div className="absolute top-1/2 -translate-y-1/2 left-full ml-4 w-72 bg-white dark:bg-zinc-950 rounded-2xl shadow-2xl border border-gray-200 dark:border-zinc-800 z-[100] animate-in slide-in-from-left-2 fade-in duration-200 overflow-hidden">
-                  <div className="h-20 bg-gray-900 dark:bg-white w-full relative">
-                     <div className="absolute -bottom-8 left-6">
-                        {leader.avatar_url ? (
-                          <img src={leader.avatar_url} className="w-20 h-20 rounded-full object-cover border-4 border-white dark:border-zinc-950 bg-white" />
-                        ) : (
-                          <div className="w-20 h-20 rounded-full border-4 border-white dark:border-zinc-950 bg-gray-100 flex items-center justify-center">
-                             <UserCircle className="w-12 h-12 text-gray-400" />
-                          </div>
-                        )}
-                     </div>
-                  </div>
-                  <div className="pt-10 px-6 pb-6">
-                    <h3 className="text-xl font-black text-gray-900 dark:text-white flex items-center gap-2">
-                      {leader.full_name}
-                      <ShieldCheck className="w-5 h-5 text-emerald-500" />
-                    </h3>
-                    
-                    <div className="mt-4 space-y-3">
-                      {leader.phone && (
-                        <div className="flex items-center gap-3 text-sm font-medium text-gray-600 dark:text-gray-400">
-                          <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-zinc-900 flex items-center justify-center">
-                            <Phone className="w-4 h-4 text-gray-900 dark:text-white" />
-                          </div>
-                          {leader.phone}
-                        </div>
-                      )}
-                      <div className="flex items-center gap-3 text-sm font-medium text-gray-600 dark:text-gray-400">
-                        <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-zinc-900 flex items-center justify-center">
-                          <Trophy className="w-4 h-4 text-[#b39552]" />
-                        </div>
-                        {leader.help_score || 0} Help Score
-                      </div>
-                      <div className="flex items-center gap-3 text-sm font-medium text-gray-600 dark:text-gray-400">
-                        <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-zinc-900 flex items-center justify-center">
-                          <MapPin className="w-4 h-4 text-gray-900 dark:text-white" />
-                        </div>
-                        {leader.tasks_completed || 0} Tasks Completed
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
           );
         })}
       </div>
+
+      {/* Volunteer Details Popup */}
+      {selectedLeader && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <div className="bg-[#0A0A0A] rounded-3xl w-full max-w-lg shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh] border border-white/10">
+            <div className="p-4 sm:p-6 border-b border-white/10 flex justify-between items-center shrink-0">
+              <h2 className="text-lg sm:text-xl font-black flex items-center gap-2 text-white">
+                <UserCircle className="w-5 h-5 sm:w-6 sm:h-6 text-white/70" /> 
+                Volunteer Details
+              </h2>
+              <button onClick={() => setSelectedLeader(null)} className="p-2 hover:bg-white/10 rounded-full transition-colors text-white/70 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-5 sm:p-8 overflow-y-auto">
+              <div className="flex gap-3 sm:gap-4 items-start mb-6 sm:mb-8">
+                <div className="w-16 h-16 rounded-2xl overflow-hidden bg-white/5 border border-white/10 shrink-0">
+                  {selectedLeader.avatar_url ? (
+                    <img src={selectedLeader.avatar_url} className="w-full h-full object-cover" alt="Avatar" />
+                  ) : (
+                    <UserCircle className="w-full h-full text-white/30 p-2" />
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-lg sm:text-xl font-black flex items-center gap-2 text-white break-words line-clamp-2">
+                    {selectedLeader.full_name}
+                    <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0" />
+                  </h3>
+                  <div className="flex gap-2 mt-1 sm:mt-2">
+                    <span className="bg-[#b39552]/20 text-[#b39552] text-[9px] sm:text-[10px] uppercase font-black px-2 py-0.5 rounded-full border border-[#b39552]/30">Top Volunteer</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 mb-4 sm:mb-6">
+                <div className="bg-white/5 p-3 rounded-2xl border border-white/10 shadow-inner">
+                  <p className="text-[9px] font-black text-white/50 uppercase tracking-widest mb-1 flex items-center gap-1">
+                    <Phone className="w-3 h-3" /> Phone
+                  </p>
+                  <p className="font-bold text-sm sm:text-base text-white">{selectedLeader.phone || 'Not provided'}</p>
+                </div>
+                
+                <div className="bg-white/5 p-3 rounded-2xl border border-white/10 shadow-inner">
+                  <p className="text-[9px] font-black text-white/50 uppercase tracking-widest mb-1 flex items-center gap-1">
+                    <MapPin className="w-3 h-3" /> Tasks
+                  </p>
+                  <p className="font-black text-base sm:text-lg text-white">{selectedLeader.tasks_completed || 0}</p>
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-br from-[#b39552]/20 to-[#b39552]/5 p-4 sm:p-5 rounded-2xl border border-[#b39552]/30 flex items-center justify-between shadow-inner">
+                <div>
+                  <p className="text-[#b39552] font-black text-[10px] sm:text-xs uppercase tracking-widest mb-1">Impact Score</p>
+                  <p className="text-2xl sm:text-3xl font-black text-white">{selectedLeader.help_score || 0}</p>
+                </div>
+                <Trophy className="w-8 h-8 sm:w-10 sm:h-10 text-[#b39552]/50 drop-shadow-md" />
+              </div>
+
+              <div className="pt-4 sm:pt-5 mt-4 sm:mt-5 border-t border-white/10 flex gap-3">
+                <button 
+                  onClick={() => {
+                    if (selectedLeader.phone) {
+                      window.open(`tel:${selectedLeader.phone}`, '_self');
+                    } else {
+                      alert('No phone number available.');
+                    }
+                  }}
+                  className="flex-1 py-4 flex items-center justify-center gap-2 bg-white hover:bg-gray-200 text-black font-black rounded-xl transition-all shadow-lg hover:scale-[1.02]"
+                >
+                  <Phone className="w-5 h-5" />
+                  <span>Call Volunteer</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

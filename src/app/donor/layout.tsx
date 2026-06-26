@@ -14,7 +14,8 @@ export default function DonorLayout({ children }: { children: React.ReactNode })
   const isMobile = useIsMobile()
 
   const links = [
-    { href: '/donor/dashboard', label: 'Browse NGOs', icon: Globe },
+    { href: '/donor/dashboard', label: 'Dashboard', icon: Globe },
+    { href: '/donor/ngos', label: 'Browse NGOs', icon: Heart },
     { href: '/donor/profile', label: 'My Profile', icon: UserCircle },
   ]
 
@@ -24,14 +25,14 @@ export default function DonorLayout({ children }: { children: React.ReactNode })
       <header className="hidden md:flex sticky top-6 z-50 mx-auto w-[95%] max-w-5xl rounded-full bg-[#111111] shadow-2xl h-16 items-center justify-between px-2 mb-10 border border-white/5">
         
         {/* Left Links */}
-        <nav className="flex items-center gap-2 pl-6 w-1/3">
-          {links.slice(0, 1).map((link) => {
+        <nav className="flex items-center gap-2 pl-6 flex-1">
+          {links.slice(0, 2).map((link) => {
             const isActive = pathname === link.href || pathname.startsWith(link.href + '/')
             return (
               <Link 
                 key={link.href} 
                 href={link.href}
-                className={`px-4 py-2 rounded-full font-medium transition-all text-sm tracking-wide ${
+                className={`px-4 py-2 rounded-full font-medium transition-all text-sm tracking-wide whitespace-nowrap ${
                   isActive 
                     ? 'text-white font-bold' 
                     : 'text-[#888888] hover:text-white'
@@ -44,7 +45,7 @@ export default function DonorLayout({ children }: { children: React.ReactNode })
         </nav>
 
         {/* Center Logo */}
-        <div className="flex justify-center w-1/3">
+        <div className="flex justify-center shrink-0 w-32">
           <Link href="/donor/dashboard" className="flex items-center justify-center h-full notranslate">
             <ShinyText 
               text="SAHAYAK" 
@@ -55,15 +56,15 @@ export default function DonorLayout({ children }: { children: React.ReactNode })
         </div>
 
         {/* Right Links & Buttons */}
-        <div className="flex items-center justify-end gap-3 w-1/3 pr-2">
+        <div className="flex items-center justify-end gap-3 flex-1 pr-2">
           <LanguageSwitcher />
-          {links.slice(1).map((link) => {
+          {links.slice(2).map((link) => {
             const isActive = pathname === link.href || pathname.startsWith(link.href + '/')
             return (
               <Link 
                 key={link.href} 
                 href={link.href}
-                className={`px-4 py-2 rounded-full font-medium transition-all text-sm tracking-wide mr-2 ${
+                className={`px-4 py-2 rounded-full font-medium transition-all text-sm tracking-wide mr-2 whitespace-nowrap ${
                   isActive 
                     ? 'text-white font-bold' 
                     : 'text-[#888888] hover:text-white'
