@@ -164,6 +164,44 @@ export type Database = {
         }
         Relationships: []
       }
+      activity_logs: {
+        Row: {
+          id: string
+          user_id: string
+          action: string
+          details: string | null
+          ip_address: string | null
+          location: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          action: string
+          details?: string | null
+          ip_address?: string | null
+          location?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          action?: string
+          details?: string | null
+          ip_address?: string | null
+          location?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       donations: {
         Row: {
           id: string

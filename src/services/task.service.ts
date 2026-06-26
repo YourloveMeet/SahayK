@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { logUserActivity } from './activity.service'
 
 export async function createTaskAction(formData: FormData) {
   const supabase = await createClient()
@@ -61,6 +62,8 @@ export async function createTaskAction(formData: FormData) {
     console.error('Failed to create task:', error)
     return { error: `Database Error: ${error.message || JSON.stringify(error)}` }
   }
+
+  await logUserActivity('CREATED_TASK', `User created a task: ${title}`)
 
   redirect('/seeker/dashboard')
 }

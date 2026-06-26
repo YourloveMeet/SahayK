@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { logUserActivity } from './activity.service'
 
 export async function loginAction(formData: FormData) {
   // Artificial delay to show the awesome loader for longer
@@ -20,6 +21,8 @@ export async function loginAction(formData: FormData) {
   if (error) {
     return { error: error.message }
   }
+
+  await logUserActivity('LOGIN', 'User successfully logged in via credentials')
 
   // Find out the user role to redirect
   const { data: profile } = await supabase
@@ -84,6 +87,8 @@ export async function signupAction(formData: FormData) {
         return { error: 'Account created, but profile initialization failed.' }
       }
     }
+
+    await logUserActivity('SIGN_UP', `User created an account as ${role}`)
 
     if (role === 'seeker') redirect('/seeker/dashboard')
     if (role === 'volunteer') redirect('/volunteer/dashboard')

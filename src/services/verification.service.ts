@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { logUserActivity } from './activity.service'
 
 export async function submitVerificationAction(formData: FormData) {
   try {
@@ -60,6 +61,8 @@ export async function submitVerificationAction(formData: FormData) {
       console.error('Profile update error:', updateError)
       return { error: updateError.message }
     }
+
+    await logUserActivity('SUBMITTED_VERIFICATION', 'User submitted identity verification details')
 
     revalidatePath('/seeker/profile')
     revalidatePath('/admin/dashboard')
