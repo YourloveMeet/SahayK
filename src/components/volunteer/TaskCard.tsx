@@ -32,6 +32,7 @@ export function TaskCard({ task, distance, isActive, onCompleteClick, onViewClic
   let mainActionHandler = () => onCompleteClick?.(task);
   let isFinalStep = true;
   let hideVolunteerAction = false;
+  let swipeTheme: any = 'gray';
 
   if (currentStatus === 'delivered') {
     hideVolunteerAction = true;
@@ -42,14 +43,17 @@ export function TaskCard({ task, distance, isActive, onCompleteClick, onViewClic
       mainActionLabel = 'Head to Shop';
       mainActionHandler = () => onUpdateStatus(task.id, 'on_the_way_to_shop');
       isFinalStep = false;
+      swipeTheme = 'blue';
     } else if (currentStatus === 'on_the_way_to_shop') {
       mainActionLabel = 'Start Shopping';
       mainActionHandler = () => onUpdateStatus(task.id, 'shopping_in_progress');
       isFinalStep = false;
+      swipeTheme = 'purple';
     } else if (currentStatus === 'shopping_in_progress') {
       mainActionLabel = 'Head to Delivery';
       mainActionHandler = () => onUpdateStatus(task.id, 'on_the_way_to_seeker');
       isFinalStep = false;
+      swipeTheme = 'orange';
     }
   }
 
@@ -229,7 +233,7 @@ export function TaskCard({ task, distance, isActive, onCompleteClick, onViewClic
           key={currentStatus}
           label={`Slide to ${mainActionLabel}`}
           onConfirm={mainActionHandler}
-          isFinalStep={isFinalStep}
+          theme={swipeTheme}
         />
       )}
 
@@ -247,7 +251,7 @@ export function TaskCard({ task, distance, isActive, onCompleteClick, onViewClic
             key={`seeker-${currentStatus}`}
             label="Confirm Delivery"
             onConfirm={() => onSeekerConfirm(task)}
-            isFinalStep={true}
+            theme="green"
           />
         </div>
       )}

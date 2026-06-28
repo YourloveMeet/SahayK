@@ -6,6 +6,7 @@ import QueryProvider from "@/components/QueryProvider";
 import { OnboardingPopup } from "@/components/OnboardingPopup";
 import { GlobalSplash } from "@/components/ui/GlobalSplash";
 import { ScrollToTop } from "@/components/ScrollToTop";
+import { Toaster } from 'sonner';
 
 const nunito = Nunito({
   subsets: ["latin"],
@@ -49,6 +50,7 @@ export default function RootLayout({
         <QueryProvider>
           <ScrollToTop />
           <GlobalSplash />
+          <Toaster position="top-center" richColors />
           {children}
           <OnboardingPopup />
         </QueryProvider>
