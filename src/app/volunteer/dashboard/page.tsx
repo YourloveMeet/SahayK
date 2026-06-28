@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
-import { Star, MapPin } from 'lucide-react'
+import { Star, MapPin, X, Camera, Upload } from 'lucide-react'
 import DynamicTaskMap from '@/components/map/DynamicTaskMap'
 import { createClient } from '@/lib/supabase/client'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
