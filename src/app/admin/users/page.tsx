@@ -30,7 +30,7 @@ export default function AdminUsersPage() {
   // Delete user permanently via RPC
   const deleteMutation = useMutation({
     mutationFn: async ({ id }: { id: string }) => {
-      const { error } = await supabase.rpc('delete_user_by_admin', { target_user_id: id })
+      const { error } = await (supabase.rpc as any)('delete_user_by_admin', { target_user_id: id })
       if (error) throw error
     },
     onSuccess: () => {
