@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { TASK_CATEGORIES } from '@/lib/constants';
-import { MapPin, User, Phone, CheckCircle, Image as ImageIcon } from 'lucide-react';
+import { MapPin, User, Phone, CheckCircle, Image as ImageIcon, X } from 'lucide-react';
 import { SwipeToConfirm } from '@/components/ui/SwipeToConfirm';
 
 interface TaskCardProps {
@@ -17,6 +18,7 @@ interface TaskCardProps {
 }
 
 export function TaskCard({ task, distance, isActive, onCompleteClick, onViewClick, onUpdateStatus, isSeekerView, onSeekerConfirm }: TaskCardProps) {
+  const [isImageOpen, setIsImageOpen] = useState(false);
   const isErrand = task.category === 'errands' || (task.category === 'other' && task.errand_details !== null);
   const effectiveCategory = isErrand ? 'errands' : task.category;
   
@@ -93,19 +95,49 @@ export function TaskCard({ task, distance, isActive, onCompleteClick, onViewClic
 
       {/* Proof of Delivery Image */}
       {task.completion_proof_url && (
-        <div className="mb-5 overflow-hidden rounded-xl border border-gray-200 dark:border-zinc-800 relative group/image">
-          <img 
-            src={task.completion_proof_url} 
-            alt="Proof of work" 
-            className="w-full h-32 object-cover object-center transition-transform duration-500 group-hover/image:scale-105"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-3">
-            <div className="flex items-center gap-2 text-white">
-              <CheckCircle className="w-4 h-4 text-green-400" />
-              <span className="text-xs font-bold text-white shadow-sm">Proof of Delivery</span>
+        <>
+          <div 
+            className="mb-5 overflow-hidden rounded-xl border border-gray-200 dark:border-zinc-800 relative group/image cursor-pointer"
+            onClick={() => setIsImageOpen(true)}
+          >
+            <img 
+              src={task.completion_proof_url} 
+              alt="Proof of work" 
+              className="w-full h-32 object-cover object-center transition-transform duration-500 group-hover/image:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-3">
+              <div className="flex items-center gap-2 text-white">
+                <CheckCircle className="w-4 h-4 text-green-400" />
+                <span className="text-xs font-bold text-white shadow-sm">Proof of Delivery (Click to view)</span>
+              </div>
             </div>
           </div>
-        </div>
+
+          {/* Full Screen Image Modal */}
+          {isImageOpen && typeof document !== 'undefined' && createPortal(
+            <div 
+              className="fixed inset-0 z-[9999] bg-black/90 flex flex-col items-center justify-center p-4"
+              onClick={() => setIsImageOpen(false)}
+            >
+              <button 
+                className="absolute top-6 right-6 text-white hover:bg-white/20 p-2 rounded-full transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsImageOpen(false);
+                }}
+              >
+                <X className="w-8 h-8" />
+              </button>
+              <img 
+                src={task.completion_proof_url} 
+                alt="Proof of work full" 
+                className="max-w-full max-h-[85vh] object-contain rounded-lg"
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>,
+            document.body
+          )}
+        </>
       )}
 
       <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 font-bold pt-4 border-t border-gray-200 dark:border-zinc-800">
@@ -167,7 +199,7 @@ export function TaskCard({ task, distance, isActive, onCompleteClick, onViewClic
                 { id: 'on_the_way_to_shop', label: 'Going to shop' },
                 { id: 'shopping_in_progress', label: 'Shopping' },
                 { id: 'on_the_way_to_seeker', label: 'On the way' },
-                { id: 'delivered', label: 'Delivered', aliases: ['arrived', 'delivered'] }
+                { id: 'delivered', label: 'Delivered', aliases: ['arrived', 'delivered', 'completed'] }
               ];
               const currentIndex = visualSteps.findIndex(s => s.id === currentStatus || s.aliases?.includes(currentStatus));
               const safeIndex = currentIndex === -1 ? 0 : currentIndex;

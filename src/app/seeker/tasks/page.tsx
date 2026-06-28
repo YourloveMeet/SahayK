@@ -3,11 +3,12 @@
 import React from 'react'
 import { ListTodo, Clock, CheckCircle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { TaskCard } from '@/components/volunteer/TaskCard'
 
 export default function SeekerTasksPage() {
   const supabase = createClient()
+  const queryClient = useQueryClient()
 
   // 1. Get current user
   const { data: userProfile } = useQuery({
@@ -29,7 +30,7 @@ export default function SeekerTasksPage() {
         .from('tasks')
         .select(`*, profiles!tasks_volunteer_id_fkey(full_name, avatar_url, phone)`)
         .eq('seeker_id', userProfile!.id)
-        .in('status', ['open', 'accepted'])
+        .in('status', ['open', 'accepted', 'in_progress'])
         .order('created_at', { ascending: false })
       if (error) throw error
       return data
@@ -51,6 +52,28 @@ export default function SeekerTasksPage() {
       return data
     }
   })
+
+  // 4. Handle Seeker Confirmation
+  const confirmMutation = useMutation({
+    mutationFn: async (taskId: string) => {
+      const { error } = await supabase
+        .from('tasks')
+        .update({
+          status: 'completed',
+          completed_at: new Date().toISOString(),
+          task_status_detail: 'completed'
+        })
+        .eq('id', taskId)
+      if (error) throw error
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['seeker', 'tasks'] })
+    }
+  })
+
+  const handleConfirm = (task: any) => {
+    confirmMutation.mutate(task.id)
+  }
 
   return (
     <div className="max-w-[1600px] mx-auto p-4 md:p-8 space-y-8 relative">
@@ -80,7 +103,18 @@ export default function SeekerTasksPage() {
               </div>
             ) : activeTasks && activeTasks.length > 0 ? (
               activeTasks.map(task => (
-                <TaskCard key={task.id} task={task as any} />
+                <div key={task.id} className="relative">
+                  {confirmMutation.isPending && confirmMutation.variables === task.id && (
+                    <div className="absolute inset-0 z-50 bg-white/50 dark:bg-black/50 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+                       <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                  )}
+                  <TaskCard 
+                    task={task as any} 
+                    isSeekerView={true}
+                    onSeekerConfirm={handleConfirm}
+                  />
+                </div>
               ))
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center text-center p-10 space-y-4">
