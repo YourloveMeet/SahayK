@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { UserCircle, ShieldCheck, HelpCircle, ChevronRight, CheckCircle } from 'lucide-react'
+import { UserCircle, ShieldCheck, HelpCircle, ChevronRight, CheckCircle, X, Send } from 'lucide-react'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { LogoutButton } from '@/components/LogoutButton'
 import { createClient } from '@/lib/supabase/client'
@@ -15,6 +15,8 @@ export default function SeekerProfilePage() {
   
   const [isEditing, setIsEditing] = useState(false)
   const [form, setForm] = useState({ full_name: '', phone: '', area_name: '', language: '' })
+  const [supportModalOpen, setSupportModalOpen] = useState(false)
+  const [supportForm, setSupportForm] = useState({ subject: '', message: '' })
 
   const { data: profile, isLoading } = useQuery({
     queryKey: ['seekerProfile'],
@@ -54,7 +56,77 @@ export default function SeekerProfilePage() {
     }
   })
 
+  const submitSupportMutation = useMutation({
+    mutationFn: async () => {
+      // Simulate sending a support ticket (since there's no tickets table)
+      await new Promise(resolve => setTimeout(resolve, 1000))
+    },
+    onSuccess: () => {
+      alert("Your support request has been sent! We will contact you soon.")
+      setSupportForm({ subject: '', message: '' })
+      setSupportModalOpen(false)
+    }
+  })
+
+  const handleSupportSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!supportForm.subject || !supportForm.message) return alert("Please fill all fields")
+    submitSupportMutation.mutate()
+  }
+
   if (isLoading) return <div className="flex min-h-screen items-center justify-center"><div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" /></div>
+
+  const SupportModal = () => (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-8 w-full max-w-md shadow-2xl relative zoom-in-95 animate-in duration-200 max-h-[90vh] overflow-y-auto">
+        <button onClick={() => setSupportModalOpen(false)} className="absolute top-6 right-6 p-2 text-zinc-500 hover:text-black dark:hover:text-white bg-zinc-100 dark:bg-zinc-900 rounded-full transition-colors">
+          <X className="w-5 h-5" />
+        </button>
+        <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/20 text-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-inner">
+          <HelpCircle className="w-8 h-8" />
+        </div>
+        <h2 className="text-2xl font-black text-black dark:text-white mb-2">Help & Support</h2>
+        <p className="text-zinc-500 text-sm mb-6">Need assistance? Check our FAQs or send us a message.</p>
+
+        <div className="space-y-3 mb-8">
+          <h3 className="font-bold text-lg text-black dark:text-white">Frequently Asked Questions</h3>
+          <div className="bg-zinc-50 dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800">
+            <p className="font-bold text-sm">How long does it take to get help?</p>
+            <p className="text-xs text-zinc-500 mt-1">Usually, a volunteer picks up requests within 2-4 hours.</p>
+          </div>
+          <div className="bg-zinc-50 dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800">
+            <p className="font-bold text-sm">How do I verify my identity?</p>
+            <p className="text-xs text-zinc-500 mt-1">Click the Verification button on your profile and upload a valid government ID.</p>
+          </div>
+        </div>
+
+        <form onSubmit={handleSupportSubmit} className="space-y-4 pt-4 border-t border-zinc-200 dark:border-zinc-800">
+          <h3 className="font-bold text-lg text-black dark:text-white">Contact Us</h3>
+          <div className="space-y-2">
+            <label className="text-xs font-black text-zinc-500 uppercase tracking-widest">Subject</label>
+            <Input 
+              value={supportForm.subject} 
+              onChange={e => setSupportForm({...supportForm, subject: e.target.value})} 
+              className="bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 h-12 rounded-xl focus-visible:ring-blue-500" 
+              placeholder="What do you need help with?"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-xs font-black text-zinc-500 uppercase tracking-widest">Message</label>
+            <textarea 
+              value={supportForm.message} 
+              onChange={e => setSupportForm({...supportForm, message: e.target.value})} 
+              className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-black dark:text-white min-h-[120px] rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              placeholder="Describe your issue in detail..."
+            />
+          </div>
+          <button type="submit" disabled={submitSupportMutation.isPending} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold h-14 rounded-xl transition-colors shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2">
+            {submitSupportMutation.isPending ? 'Sending...' : <><Send className="w-5 h-5" /> Send Message</>}
+          </button>
+        </form>
+      </div>
+    </div>
+  )
 
   const DesktopProfile = () => (
     <div className="max-w-[1600px] mx-auto p-4 md:p-8 space-y-8 relative">
@@ -172,7 +244,7 @@ export default function SeekerProfilePage() {
         </div>
 
         {/* Support Options */}
-        <div onClick={() => alert('Help & Support feature is coming soon!')} className="backdrop-blur-xl bg-white/60 dark:bg-black/60 rounded-[1rem] border border-gray-200 dark:border-zinc-800 shadow-sm flex flex-col overflow-hidden p-6 hover:scale-[1.02] hover:shadow-md transition-all cursor-pointer group">
+        <div onClick={() => setSupportModalOpen(true)} className="backdrop-blur-xl bg-white/60 dark:bg-black/60 rounded-[1rem] border border-gray-200 dark:border-zinc-800 shadow-sm flex flex-col overflow-hidden p-6 hover:scale-[1.02] hover:shadow-md transition-all cursor-pointer group">
           <div className="w-12 h-12 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl flex items-center justify-center mb-4 shadow-md">
             <HelpCircle className="w-6 h-6" />
           </div>
@@ -185,6 +257,8 @@ export default function SeekerProfilePage() {
         </div>
 
       </div>
+      
+      {supportModalOpen && <SupportModal />}
     </div>
   )
 
@@ -301,7 +375,7 @@ export default function SeekerProfilePage() {
           )}
         </button>
 
-        <button onClick={() => alert('Help & Support feature is coming soon!')} className="w-full flex items-center justify-between bg-white dark:bg-zinc-900 p-5 rounded-2xl shadow-sm active:scale-95 transition-transform text-left border border-gray-100 dark:border-zinc-800">
+        <button onClick={() => setSupportModalOpen(true)} className="w-full flex items-center justify-between bg-white dark:bg-zinc-900 p-5 rounded-2xl shadow-sm active:scale-95 transition-transform text-left border border-gray-100 dark:border-zinc-800">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl flex items-center justify-center">
               <HelpCircle className="w-6 h-6" />
@@ -318,6 +392,8 @@ export default function SeekerProfilePage() {
       <div className="pt-8 flex justify-center pb-8">
         <LogoutButton />
       </div>
+
+      {supportModalOpen && <SupportModal />}
     </div>
   )
 

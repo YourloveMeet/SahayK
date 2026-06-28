@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
-import { TaskCard } from '@/components/volunteer/TaskCard'
+import { SeekerTasksList } from './SeekerTasksList'
 import { FadeOutOverlay } from '@/components/ui/FadeOutOverlay'
 import { Clock, FileText, ShoppingBag, ArrowRight } from 'lucide-react'
 
@@ -13,7 +13,7 @@ export default async function SeekerDashboard() {
     .from('tasks')
     .select(`*, profiles!tasks_volunteer_id_fkey(full_name, avatar_url, phone)`)
     .eq('seeker_id', user?.id || '')
-    .in('status', ['open', 'accepted'])
+    .in('status', ['open', 'accepted', 'in_progress'])
     .order('created_at', { ascending: false })
 
   return (
@@ -127,11 +127,7 @@ export default async function SeekerDashboard() {
              <Clock className="w-6 h-6 text-blue-600 dark:text-blue-500" />
              Your Active Requests
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {activeTasks.map(task => (
-              <TaskCard key={task.id} task={task as any} />
-            ))}
-          </div>
+          <SeekerTasksList tasks={activeTasks} />
         </div>
       )}
     </div>

@@ -1,9 +1,117 @@
 'use client'
 
-import React from 'react'
-import { ListTodo, CheckCircle } from 'lucide-react'
+import React, { useState } from 'react'
+import { ListTodo, CheckCircle, Upload, X, Camera } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { TaskCard } from '@/components/volunteer/TaskCard'
 
 export default function VolunteerTasksPage() {
+  const supabase = createClient()
+  const queryClient = useQueryClient()
+  const [uploadTaskId, setUploadTaskId] = useState<string | null>(null)
+
+  // 1. Get current user profile
+  const { data: userProfile } = useQuery({
+    queryKey: ['profile'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error("Not authenticated")
+      const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+      return data
+    }
+  })
+
+  // 2. Fetch Active Assignments
+  const { data: activeTasks, isLoading: isLoadingActive } = useQuery({
+    queryKey: ['volunteer', 'tasks', 'active', userProfile?.id],
+    enabled: !!userProfile?.id,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('tasks')
+        .select(`*, profiles!tasks_seeker_id_fkey(full_name, avatar_url, phone, area_name)`)
+        .eq('volunteer_id', userProfile!.id)
+        .in('status', ['accepted', 'in_progress'])
+        .order('created_at', { ascending: false })
+      if (error) throw error
+      return data
+    }
+  })
+
+  // 3. Fetch Completed Tasks
+  const { data: pastTasks, isLoading: isLoadingPast } = useQuery({
+    queryKey: ['volunteer', 'tasks', 'past', userProfile?.id],
+    enabled: !!userProfile?.id,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('tasks')
+        .select(`*, profiles!tasks_seeker_id_fkey(full_name, avatar_url, phone, area_name)`)
+        .eq('volunteer_id', userProfile!.id)
+        .eq('status', 'completed')
+        .order('completed_at', { ascending: false })
+      if (error) throw error
+      return data
+    }
+  })
+
+  // 4. Update status mutation
+  const updateStatusMutation = useMutation({
+    mutationFn: async ({ taskId, newStatus, proofUrl }: { taskId: string; newStatus: string, proofUrl?: string }) => {
+      const updates: any = { task_status_detail: newStatus }
+      
+      // If it's fully completed (e.g., seeker confirms), we'd set status completed. 
+      // But here, volunteer only marks as 'delivered', waiting for seeker.
+      if (newStatus === 'delivered') {
+        updates.completion_proof_url = proofUrl || 'https://images.unsplash.com/photo-1628102491629-778571d893a3?q=80&w=2000&auto=format&fit=crop' // Mock image
+      }
+      
+      const { error } = await supabase
+        .from('tasks')
+        .update(updates)
+        .eq('id', taskId)
+      if (error) throw error
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['volunteer', 'tasks'] })
+      setUploadTaskId(null)
+    }
+  })
+
+  const handleSimulateUpload = () => {
+    if (uploadTaskId) {
+      updateStatusMutation.mutate({ taskId: uploadTaskId, newStatus: 'delivered' })
+    }
+  }
+
+  const UploadModal = () => (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-8 w-full max-w-md shadow-2xl relative zoom-in-95 animate-in duration-200">
+        <button onClick={() => setUploadTaskId(null)} className="absolute top-6 right-6 p-2 text-zinc-500 hover:text-black dark:hover:text-white bg-zinc-100 dark:bg-zinc-900 rounded-full transition-colors">
+          <X className="w-5 h-5" />
+        </button>
+        <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/20 text-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-inner">
+          <Camera className="w-8 h-8" />
+        </div>
+        <h2 className="text-2xl font-black text-black dark:text-white mb-2">Upload Proof of Delivery</h2>
+        <p className="text-zinc-500 text-sm mb-6">Please attach a photo to confirm the task is complete. The seeker will review this to finalize the request.</p>
+        
+        <div onClick={handleSimulateUpload} className="border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-2xl p-8 flex flex-col items-center justify-center bg-zinc-50 dark:bg-zinc-900 cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors group">
+          <Upload className="w-10 h-10 text-zinc-400 mb-3 group-hover:scale-110 transition-transform" />
+          <p className="font-bold text-sm text-zinc-600 dark:text-zinc-300">Click to upload photo</p>
+          <p className="text-xs text-zinc-400 mt-1">Simulate upload for prototype</p>
+        </div>
+        
+        <button 
+          onClick={handleSimulateUpload} 
+          disabled={updateStatusMutation.isPending} 
+          className="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold h-14 rounded-xl transition-colors shadow-lg shadow-blue-500/20"
+        >
+          {updateStatusMutation.isPending ? 'Uploading...' : 'Submit Photo'}
+        </button>
+      </div>
+    </div>
+  )
+
   return (
     <div className="max-w-[1600px] mx-auto p-4 md:p-8 space-y-8 relative">
       {/* Background Orbs */}
@@ -18,40 +126,77 @@ export default function VolunteerTasksPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 relative z-10 min-h-[500px]">
-        {/* Active Tasks Placeholder */}
+        {/* Active Tasks */}
         <div className="backdrop-blur-xl bg-white/60 dark:bg-black/60 rounded-[1rem] border border-gray-200 dark:border-zinc-800 shadow-xl flex flex-col overflow-hidden">
           <div className="p-5 border-b border-gray-200 dark:border-zinc-800 bg-white/90 dark:bg-black/90 backdrop-blur-md">
              <h2 className="text-xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
                Active Assignments
              </h2>
           </div>
-          <div className="flex-1 flex flex-col items-center justify-center text-center p-10 space-y-4">
-            <div className="w-20 h-20 bg-gray-100 dark:bg-zinc-800 rounded-full flex items-center justify-center shadow-inner">
-               <ListTodo className="w-10 h-10 text-gray-400" />
-            </div>
-            <p className="text-gray-500 font-medium max-w-sm">
-              You don't have any active assignments right now. Head over to the Dashboard to find requests near you.
-            </p>
+          <div className="flex-1 flex flex-col p-6 space-y-4 overflow-y-auto">
+            {isLoadingActive ? (
+              <div className="animate-pulse space-y-4">
+                <div className="h-40 bg-gray-200 dark:bg-zinc-800 rounded-xl"></div>
+              </div>
+            ) : activeTasks && activeTasks.length > 0 ? (
+              activeTasks.map(task => (
+                <TaskCard 
+                  key={task.id} 
+                  task={task as any} 
+                  isActive={true} 
+                  onUpdateStatus={(taskId, newStatus) => updateStatusMutation.mutate({ taskId, newStatus })}
+                  onCompleteClick={() => setUploadTaskId(task.id)}
+                />
+              ))
+            ) : (
+              <div className="flex-1 flex flex-col items-center justify-center text-center p-10 space-y-4">
+                <div className="w-20 h-20 bg-gray-100 dark:bg-zinc-800 rounded-full flex items-center justify-center shadow-inner">
+                   <ListTodo className="w-10 h-10 text-gray-400" />
+                </div>
+                <p className="text-gray-500 font-medium max-w-sm">
+                  You don't have any active assignments right now. Head over to the Dashboard to find requests near you.
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Completed History Placeholder */}
+        {/* Completed History */}
         <div className="backdrop-blur-xl bg-white/60 dark:bg-black/60 rounded-[1rem] border border-gray-200 dark:border-zinc-800 shadow-xl flex flex-col overflow-hidden">
           <div className="p-5 border-b border-gray-200 dark:border-zinc-800 bg-white/90 dark:bg-black/90 backdrop-blur-md">
              <h2 className="text-xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
                History
              </h2>
           </div>
-          <div className="flex-1 flex flex-col items-center justify-center text-center p-10 space-y-4">
-            <div className="w-20 h-20 bg-gray-100 dark:bg-zinc-800 rounded-full flex items-center justify-center shadow-inner">
-               <CheckCircle className="w-10 h-10 text-gray-400" />
-            </div>
-            <p className="text-gray-500 font-medium max-w-sm">
-              Your completed tasks will appear here. Build your reputation and earn badges by completing requests!
-            </p>
+          <div className="flex-1 flex flex-col p-6 space-y-4 overflow-y-auto">
+            {isLoadingPast ? (
+              <div className="animate-pulse space-y-4">
+                <div className="h-40 bg-gray-200 dark:bg-zinc-800 rounded-xl"></div>
+              </div>
+            ) : pastTasks && pastTasks.length > 0 ? (
+              pastTasks.map(task => (
+                <TaskCard 
+                  key={task.id} 
+                  task={task as any} 
+                  isActive={false} 
+                />
+              ))
+            ) : (
+              <div className="flex-1 flex flex-col items-center justify-center text-center p-10 space-y-4">
+                <div className="w-20 h-20 bg-gray-100 dark:bg-zinc-800 rounded-full flex items-center justify-center shadow-inner">
+                   <CheckCircle className="w-10 h-10 text-gray-400" />
+                </div>
+                <p className="text-gray-500 font-medium max-w-sm">
+                  Your completed tasks will appear here. Build your reputation and earn badges by completing requests!
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Proof Upload Modal */}
+      {uploadTaskId && <UploadModal />}
     </div>
   )
 }

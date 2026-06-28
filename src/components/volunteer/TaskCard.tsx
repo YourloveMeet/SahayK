@@ -1,8 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { TASK_CATEGORIES } from '@/lib/constants';
-import { MapPin, User, Phone } from 'lucide-react';
+import { MapPin, User, Phone, CheckCircle, Image as ImageIcon } from 'lucide-react';
+import { SwipeToConfirm } from '@/components/ui/SwipeToConfirm';
 
 interface TaskCardProps {
   task: any; // We'll pass the task object
@@ -11,9 +12,11 @@ interface TaskCardProps {
   onCompleteClick?: (task: any) => void;
   onViewClick?: (task: any) => void;
   onUpdateStatus?: (taskId: string, newStatus: string) => void;
+  isSeekerView?: boolean;
+  onSeekerConfirm?: (task: any) => void;
 }
 
-export function TaskCard({ task, distance, isActive, onCompleteClick, onViewClick, onUpdateStatus }: TaskCardProps) {
+export function TaskCard({ task, distance, isActive, onCompleteClick, onViewClick, onUpdateStatus, isSeekerView, onSeekerConfirm }: TaskCardProps) {
   const isErrand = task.category === 'errands' || (task.category === 'other' && task.errand_details !== null);
   const effectiveCategory = isErrand ? 'errands' : task.category;
   
@@ -28,8 +31,13 @@ export function TaskCard({ task, distance, isActive, onCompleteClick, onViewClic
   let mainActionLabel = 'Mark as Complete';
   let mainActionHandler = () => onCompleteClick?.(task);
   let isFinalStep = true;
+  let hideVolunteerAction = false;
 
-  if (isErrand && isActive && onUpdateStatus) {
+  if (currentStatus === 'delivered') {
+    hideVolunteerAction = true;
+  }
+
+  if (isErrand && isActive && onUpdateStatus && !hideVolunteerAction) {
     if (currentStatus === 'not_started') {
       mainActionLabel = 'Head to Shop';
       mainActionHandler = () => onUpdateStatus(task.id, 'on_the_way_to_shop');
@@ -51,7 +59,7 @@ export function TaskCard({ task, distance, isActive, onCompleteClick, onViewClic
 
   return (
     <div
-      className={`group p-6 bg-white/60 dark:bg-black/60 backdrop-blur-md rounded-2xl transition-all duration-300 hover:bg-white/90 dark:hover:bg-black/90 hover:-translate-y-1 ${isUrgentStyle}`}
+      className={`group p-6 bg-white/60 dark:bg-black/60 backdrop-blur-md rounded-2xl transition-all duration-300 hover:bg-white/90 dark:hover:bg-black/90 hover:-translate-y-1 flex flex-col h-full ${isUrgentStyle}`}
     >
       <div className="flex justify-between items-start gap-4 mb-4">
         <h3 className="font-bold text-xl text-gray-900 dark:text-white leading-tight group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">
@@ -75,9 +83,26 @@ export function TaskCard({ task, distance, isActive, onCompleteClick, onViewClic
         )}
       </div>
 
-      <p className="text-sm text-gray-600 dark:text-gray-400 mb-5 line-clamp-2 leading-relaxed">
+      <p className="text-sm text-gray-600 dark:text-gray-400 mb-5 line-clamp-2 leading-relaxed flex-1">
         {task.description}
       </p>
+
+      {/* Proof of Delivery Image */}
+      {task.completion_proof_url && (
+        <div className="mb-5 overflow-hidden rounded-xl border border-gray-200 dark:border-zinc-800 relative group/image">
+          <img 
+            src={task.completion_proof_url} 
+            alt="Proof of work" 
+            className="w-full h-32 object-cover object-center transition-transform duration-500 group-hover/image:scale-105"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-3">
+            <div className="flex items-center gap-2 text-white">
+              <CheckCircle className="w-4 h-4 text-green-400" />
+              <span className="text-xs font-bold text-white shadow-sm">Proof of Delivery</span>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 font-bold pt-4 border-t border-gray-200 dark:border-zinc-800">
         <span className="flex items-center gap-1.5 bg-white/50 dark:bg-black/20 px-2 py-1 rounded-md truncate max-w-[50%]">
@@ -155,7 +180,8 @@ export function TaskCard({ task, distance, isActive, onCompleteClick, onViewClic
                     const isCompleted = idx <= safeIndex;
                     const isActiveStep = idx === safeIndex;
                     const isNext = idx === safeIndex + 1;
-                    const canClick = isActive && (isNext || isCompleted); // volunteers can click next step or go back
+                    // For volunteer view, they can click. For seeker view, it's read-only.
+                    const canClick = !isSeekerView && isActive && (isNext || isCompleted); 
 
                     return (
                       <div 
@@ -185,7 +211,8 @@ export function TaskCard({ task, distance, isActive, onCompleteClick, onViewClic
         </div>
       )}
 
-      {isActive && task.latitude && task.longitude && (
+      {/* Volunteer specific actions */}
+      {!isSeekerView && isActive && task.latitude && task.longitude && (
         <a
           href={`https://www.google.com/maps/dir/?api=1&destination=${task.latitude},${task.longitude}`}
           target="_blank"
@@ -197,26 +224,32 @@ export function TaskCard({ task, distance, isActive, onCompleteClick, onViewClic
         </a>
       )}
 
-      {isActive && (onCompleteClick || onUpdateStatus) && (
-        <button
-          onClick={mainActionHandler}
-          className={`mt-4 w-full py-2.5 font-bold rounded-xl shadow-sm transition-all transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 ${
-            isFinalStep 
-              ? 'bg-gray-900 dark:bg-white hover:bg-black dark:hover:bg-gray-100 text-white dark:text-gray-900' 
-              : 'bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-700 dark:hover:bg-indigo-600 text-white'
-          }`}
-        >
-          {isFinalStep ? (
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
-          ) : (
-            <svg className="w-5 h-5 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-            </svg>
-          )}
-          {mainActionLabel}
-        </button>
+      {!isSeekerView && isActive && !hideVolunteerAction && (onCompleteClick || onUpdateStatus) && (
+        <SwipeToConfirm
+          key={currentStatus}
+          label={`Slide to ${mainActionLabel}`}
+          onConfirm={mainActionHandler}
+          isFinalStep={isFinalStep}
+        />
+      )}
+
+      {!isSeekerView && isActive && hideVolunteerAction && (
+        <div className="mt-4 w-full py-3 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-xl font-bold flex flex-col items-center justify-center border border-green-200 dark:border-green-800 text-center gap-1">
+           <CheckCircle className="w-5 h-5" />
+           <span className="text-sm">Pending Seeker Confirmation</span>
+        </div>
+      )}
+
+      {/* Seeker specific actions */}
+      {isSeekerView && currentStatus === 'delivered' && onSeekerConfirm && (
+        <div className="mt-4">
+          <SwipeToConfirm
+            key={`seeker-${currentStatus}`}
+            label="Confirm Delivery"
+            onConfirm={() => onSeekerConfirm(task)}
+            isFinalStep={true}
+          />
+        </div>
       )}
 
       {!isActive && onViewClick && (
