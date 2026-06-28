@@ -32,6 +32,8 @@ export default function ReferCasePage() {
 
   const { data: fromNGO } = useQuery({
     queryKey: ['myNgoProfile'],
+    gcTime: 0,
+    staleTime: 0,
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return null

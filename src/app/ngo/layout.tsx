@@ -42,6 +42,8 @@ export default function NGOLayout({
 
   const { data: profile, isLoading } = useQuery({
     queryKey: ['ngo_profile_status'],
+    gcTime: 0,
+    staleTime: 0,
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return null
@@ -59,7 +61,7 @@ export default function NGOLayout({
   React.useEffect(() => {
     if (!isLoading && profile !== undefined) {
       if (!profile?.profile_complete && pathname !== '/ngo/setup') {
-        router.push('/ngo/setup')
+        window.location.href = '/ngo/setup'
       } else if (profile?.profile_complete && pathname === '/ngo/setup') {
         router.push('/ngo/dashboard')
       }

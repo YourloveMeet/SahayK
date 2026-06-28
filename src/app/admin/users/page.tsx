@@ -27,10 +27,10 @@ export default function AdminUsersPage() {
     }
   })
 
-  // Toggle user suspension
-  const suspendMutation = useMutation({
-    mutationFn: async ({ id, is_active }: { id: string, is_active: boolean }) => {
-      const { error } = await supabase.from('profiles').update({ is_active }).eq('id', id)
+  // Delete user permanently via RPC
+  const deleteMutation = useMutation({
+    mutationFn: async ({ id }: { id: string }) => {
+      const { error } = await supabase.rpc('delete_user_by_admin', { target_user_id: id })
       if (error) throw error
     },
     onSuccess: () => {
@@ -140,11 +140,15 @@ export default function AdminUsersPage() {
                     </td>
                     <td className="p-4 text-right space-x-2">
                       <button 
-                        onClick={() => suspendMutation.mutate({ id: user.id, is_active: user.is_active === false ? true : false })}
-                        disabled={suspendMutation.isPending}
-                        className={`inline-flex items-center justify-center px-3 py-1.5 text-xs font-bold rounded-lg transition-colors ${user.is_active === false ? 'bg-emerald-900/30 text-emerald-400 hover:bg-emerald-900/50' : 'bg-red-900/30 text-red-400 hover:bg-red-900/50'}`}
+                        onClick={() => {
+                          if (confirm(`Are you sure you want to permanently delete ${user.full_name}? This action cannot be undone.`)) {
+                            deleteMutation.mutate({ id: user.id })
+                          }
+                        }}
+                        disabled={deleteMutation.isPending}
+                        className="inline-flex items-center justify-center px-3 py-1.5 text-xs font-bold rounded-lg transition-colors bg-red-900/30 text-red-400 hover:bg-red-900/50"
                       >
-                        {user.is_active === false ? 'Reactivate' : 'Suspend'}
+                        {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
                       </button>
                       <Link 
                         href={`/admin/users/${user.id}`}
