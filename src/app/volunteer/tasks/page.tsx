@@ -9,6 +9,7 @@ import { TaskCard } from '@/components/volunteer/TaskCard'
 export default function VolunteerTasksPage() {
   const supabase = createClient()
   const queryClient = useQueryClient()
+  const [visibleHistoryCount, setVisibleHistoryCount] = useState(2)
   const [uploadTaskId, setUploadTaskId] = useState<string | null>(null)
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
 
@@ -164,7 +165,7 @@ export default function VolunteerTasksPage() {
                Active Assignments
              </h2>
           </div>
-          <div className="flex-1 flex flex-col p-6 space-y-4 overflow-y-auto">
+          <div className="flex-1 flex flex-col p-3 sm:p-6 space-y-4 overflow-y-auto">
             {isLoadingActive ? (
               <div className="animate-pulse space-y-4">
                 <div className="h-40 bg-gray-200 dark:bg-zinc-800 rounded-xl"></div>
@@ -200,20 +201,30 @@ export default function VolunteerTasksPage() {
                History
              </h2>
           </div>
-          <div className="flex-1 flex flex-col p-6 space-y-4 overflow-y-auto">
+          <div className="flex-1 flex flex-col p-3 sm:p-6 space-y-4 overflow-y-auto">
             {isLoadingPast ? (
               <div className="animate-pulse space-y-4">
                 <div className="h-40 bg-gray-200 dark:bg-zinc-800 rounded-xl"></div>
               </div>
-            ) : pastTasks && pastTasks.length > 0 ? (
-              pastTasks.map(task => (
-                <div key={task.id}>
-                  <TaskCard 
-                    task={task as any} 
-                    isActive={false} 
-                  />
-                </div>
-              ))
+            ) : (pastTasks && pastTasks.length > 0) ? (
+              <>
+                {pastTasks.slice(0, visibleHistoryCount).map(task => (
+                  <div key={task.id}>
+                    <TaskCard 
+                      task={task as any} 
+                      isActive={false} 
+                    />
+                  </div>
+                ))}
+                {pastTasks.length > visibleHistoryCount && (
+                  <button 
+                    onClick={() => setVisibleHistoryCount(prev => prev + 5)}
+                    className="w-full py-3 mt-2 text-sm font-bold text-gray-900 bg-gray-100 dark:bg-zinc-800 dark:text-gray-100 rounded-xl hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors"
+                  >
+                    Show More
+                  </button>
+                )}
+              </>
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center text-center p-10 space-y-4">
                 <div className="w-20 h-20 bg-gray-100 dark:bg-zinc-800 rounded-full flex items-center justify-center shadow-inner">

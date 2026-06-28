@@ -65,10 +65,10 @@ export function TaskCard({ task, distance, isActive, onCompleteClick, onViewClic
 
   return (
     <div
-      className={`group p-6 bg-white/60 dark:bg-black/60 backdrop-blur-md rounded-2xl transition-all duration-300 hover:bg-white/90 dark:hover:bg-black/90 hover:-translate-y-1 flex flex-col h-full ${isUrgentStyle}`}
+      className={`group p-4 sm:p-6 bg-white/60 dark:bg-black/60 backdrop-blur-md rounded-2xl transition-all duration-300 hover:bg-white/90 dark:hover:bg-black/90 hover:-translate-y-1 flex flex-col ${isUrgentStyle}`}
     >
-      <div className="flex justify-between items-start gap-4 mb-4">
-        <h3 className="font-bold text-xl text-gray-900 dark:text-white leading-tight group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">
+      <div className="flex justify-between items-start gap-3 sm:gap-4 mb-3 sm:mb-4">
+        <h3 className="font-bold text-lg sm:text-xl text-gray-900 dark:text-white leading-tight group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">
           {task.title}
         </h3>
         {task.is_urgent && (
@@ -78,18 +78,18 @@ export function TaskCard({ task, distance, isActive, onCompleteClick, onViewClic
         )}
       </div>
 
-      <div className="flex items-center gap-2 mb-4">
-        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-gray-100 text-xs font-bold rounded-lg border border-gray-200 dark:border-zinc-700">
-          <CategoryIcon className="w-3.5 h-3.5" /> {categoryLabel}
+      <div className="flex flex-wrap items-center gap-2 mb-3 sm:mb-4">
+        <span className="inline-flex items-center gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-gray-100 text-[10px] sm:text-xs font-bold rounded-lg border border-gray-200 dark:border-zinc-700">
+          <CategoryIcon className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> {categoryLabel}
         </span>
         {distance !== undefined && (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-gray-300 text-xs font-bold rounded-lg border border-gray-200 dark:border-zinc-700">
-            <MapPin className="w-3.5 h-3.5" /> {distance < 1 ? '< 1 km away' : `${distance.toFixed(1)} km away`}
+          <span className="inline-flex items-center gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-gray-300 text-[10px] sm:text-xs font-bold rounded-lg border border-gray-200 dark:border-zinc-700">
+            <MapPin className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> {distance < 1 ? '< 1 km away' : `${distance.toFixed(1)} km away`}
           </span>
         )}
       </div>
 
-      <p className="text-sm text-gray-600 dark:text-gray-400 mb-5 line-clamp-2 leading-relaxed">
+      <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-4 sm:mb-5 line-clamp-2 leading-relaxed">
         {task.description}
       </p>
 
@@ -140,9 +140,9 @@ export function TaskCard({ task, distance, isActive, onCompleteClick, onViewClic
         </>
       )}
 
-      <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 font-bold pt-4 border-t border-gray-200 dark:border-zinc-800 mt-auto">
-        <span className="flex items-center gap-1.5 bg-white/50 dark:bg-black/20 px-2 py-1 rounded-md truncate max-w-[50%]">
-          <MapPin className="w-3.5 h-3.5" /> {task.area_name || 'Location hidden'}
+      <div className="flex items-center justify-between text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 font-bold pt-3 sm:pt-4 border-t border-gray-200 dark:border-zinc-800 mt-auto">
+        <span className="flex items-center gap-1 sm:gap-1.5 bg-white/50 dark:bg-black/20 px-1.5 sm:px-2 py-1 rounded-md truncate max-w-[50%]">
+          <MapPin className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> {task.area_name || 'Location hidden'}
         </span>
         <div className="relative group/profile flex items-center gap-1.5 bg-white/50 dark:bg-black/20 px-2 py-1 rounded-md max-w-[50%] cursor-pointer hover:bg-white/80 dark:hover:bg-zinc-800 transition-colors">
           {task.profiles ? (
@@ -187,12 +187,10 @@ export function TaskCard({ task, distance, isActive, onCompleteClick, onViewClic
       </div>
 
       {isErrand && (
-        <div className="mt-5 pt-5 border-t border-gray-200 dark:border-zinc-800">
-          <h4 className="text-[11px] font-black text-indigo-500/80 dark:text-indigo-400/80 uppercase tracking-[0.2em] mb-4">Task & Shopping Status</h4>
-          <div className="flex items-start justify-between relative px-2 pt-2">
-            {/* Background Line */}
-            <div className="absolute top-4 left-8 right-8 h-1 bg-gray-200 dark:bg-zinc-800 -translate-y-1/2 z-0 rounded-full"></div>
-            
+        <div className="mt-4 sm:mt-5 pt-4 sm:pt-5 border-t border-gray-200 dark:border-zinc-800">
+          <h4 className="text-[9px] sm:text-[11px] font-black text-indigo-500/80 dark:text-indigo-400/80 uppercase tracking-[0.2em] mb-3 sm:mb-4">Task & Shopping Status</h4>
+          
+          <div className="relative w-full mt-2">
             {(() => {
               const visualSteps = [
                 { id: 'not_started', label: 'Not Started' },
@@ -206,40 +204,51 @@ export function TaskCard({ task, distance, isActive, onCompleteClick, onViewClic
 
               return (
                 <>
-                  {/* Active Line */}
+                  {/* Background Line - Spans from center of first node (10%) to center of last (90%) */}
+                  <div className="absolute top-[6px] sm:top-[8px] left-[10%] right-[10%] h-1 bg-gray-200 dark:bg-zinc-800 -translate-y-1/2 z-0 rounded-full"></div>
+                  
+                  {/* Active Progress Line */}
                   <div 
-                    className="absolute top-4 left-8 h-1 bg-indigo-500 -translate-y-1/2 z-0 rounded-full transition-all duration-500"
-                    style={{ width: `calc(${safeIndex / (visualSteps.length - 1)} * (100% - 4rem))` }}
+                    className="absolute top-[6px] sm:top-[8px] left-[10%] h-1 bg-indigo-500 -translate-y-1/2 z-0 rounded-full transition-all duration-500"
+                    style={{ width: `calc(${safeIndex / (visualSteps.length - 1)} * 80%)` }}
                   ></div>
 
-                  {visualSteps.map((step, idx) => {
-                    const isCompleted = idx <= safeIndex;
-                    const isActiveStep = idx === safeIndex;
-                    const isNext = idx === safeIndex + 1;
-                    // For volunteer view, they can click. For seeker view, it's read-only.
-                    const canClick = !isSeekerView && isActive && (isNext || isCompleted); 
+                  <div className="flex items-start justify-between relative z-10">
+                    {visualSteps.map((step, idx) => {
+                      const isCompleted = idx <= safeIndex;
+                      const isActiveStep = idx === safeIndex;
+                      const isNext = idx === safeIndex + 1;
+                      const canClick = !isSeekerView && isActive && (isNext || isCompleted); 
 
-                    return (
-                      <div 
-                        key={step.id} 
-                        className={`relative z-10 flex flex-col items-center gap-2 w-12 ${canClick ? 'cursor-pointer hover:opacity-80' : ''}`}
-                        onClick={() => {
-                          if (canClick && onUpdateStatus && isActive) {
-                            onUpdateStatus(task.id, step.id);
-                          }
-                        }}
-                      >
-                        <div className={`w-4 h-4 rounded-full border-2 transition-all duration-300 shrink-0 ${
-                          isCompleted 
-                            ? 'bg-indigo-500 border-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]' 
-                            : 'bg-white dark:bg-zinc-900 border-gray-300 dark:border-zinc-700'
-                        } ${isActiveStep ? 'scale-125' : ''}`} />
-                        <span className={`text-[9px] font-bold ${isActiveStep ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-400'} text-center leading-tight`}>
-                          {step.label}
-                        </span>
-                      </div>
-                    )
-                  })}
+                      return (
+                        <div 
+                          key={step.id} 
+                          className={`flex flex-col items-center w-[20%] ${canClick ? 'cursor-pointer hover:opacity-80' : ''}`}
+                          onClick={() => {
+                            if (canClick && onUpdateStatus && isActive) {
+                              onUpdateStatus(task.id, step.id);
+                            }
+                          }}
+                        >
+                          {/* Circle wrapper with fixed height to ensure line perfectly crosses center */}
+                          <div className="h-3 sm:h-4 flex items-center justify-center mb-1.5 sm:mb-2 bg-white/0 dark:bg-black/0">
+                            <div className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full border-2 transition-all duration-300 shrink-0 ${
+                              isCompleted 
+                                ? 'bg-indigo-500 border-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]' 
+                                : 'bg-white dark:bg-zinc-900 border-gray-300 dark:border-zinc-700'
+                            } ${isActiveStep ? 'scale-[1.3]' : ''}`} />
+                          </div>
+                          
+                          {/* Text Label */}
+                          <span className={`text-[8px] sm:text-[9px] font-bold text-center leading-tight px-1 ${
+                            isActiveStep ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-400'
+                          }`}>
+                            {step.label}
+                          </span>
+                        </div>
+                      )
+                    })}
+                  </div>
                 </>
               );
             })()}
