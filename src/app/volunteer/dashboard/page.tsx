@@ -29,6 +29,7 @@ export default function VolunteerDashboard() {
   // State setup
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number; addressText?: string } | null>(null)
   const [showLocationPrompt, setShowLocationPrompt] = useState(true) // Show on initial load
+  const [selectedImage, setSelectedImage] = useState<string | null>(null)
   
   // Filters
   const [category, setCategory] = useState('all')
@@ -148,39 +149,23 @@ export default function VolunteerDashboard() {
 
   const completeTaskMutation = useMutation({
     mutationFn: async ({ taskId, note, proofUrl, isUrgent }: { taskId: string, note: string, proofUrl: string, isUrgent: boolean }) => {
-      // Complete the task
+      // Mark as delivered (awaiting seeker confirmation)
       const { error: taskError } = await supabase
         .from('tasks')
         .update({ 
-          status: 'completed', 
-          completed_at: new Date().toISOString(),
-          completion_note: note,
+          task_status_detail: 'delivered',
           completion_proof_url: proofUrl
         })
         .eq('id', taskId)
       if (taskError) throw taskError
 
-      // Increment Volunteer Stats
-      if (userProfile) {
-        const pointsEarned = isUrgent ? 20 : 10;
-        const newScore = (userProfile.help_score || 0) + pointsEarned;
-        const newTasksCompleted = (userProfile.tasks_completed || 0) + 1;
-
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .update({
-             help_score: newScore,
-             tasks_completed: newTasksCompleted
-          })
-          .eq('id', userProfile.id)
-        if (profileError) throw profileError
-      }
+      // Wait for Seeker to confirm before awarding points
+      // We will move the point awarding to the Seeker confirmation step.
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks', 'active'] })
-      queryClient.invalidateQueries({ queryKey: ['profile'] })
-      queryClient.invalidateQueries({ queryKey: ['leaderboard'] })
       setTaskToComplete(null)
+      setSelectedImage(null)
     }
   })
 
@@ -225,6 +210,29 @@ export default function VolunteerDashboard() {
     setShowLocationPrompt(false);
   }
 
+  // Upload Handlers
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setSelectedImage(reader.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleSimulateUpload = () => {
+    if (taskToComplete && selectedImage) {
+      completeTaskMutation.mutate({ 
+        taskId: taskToComplete.id, 
+        note: 'Task completed via dashboard', 
+        proofUrl: selectedImage,
+        isUrgent: !!taskToComplete.is_urgent
+      })
+    }
+  }
+
   // Filtering Logic
   const getDistance = (lat: number | null, lng: number | null) => {
     if (!userLocation || !lat || !lng) return undefined
@@ -257,6 +265,54 @@ export default function VolunteerDashboard() {
   }, [openTasks, category, isUrgentOnly, userLocation, distanceFilter])
 
   const mapCenter = userLocation ? [userLocation.lat, userLocation.lng] as [number, number] : undefined
+
+  // Upload Modal Component
+  const UploadModal = () => (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-8 w-full max-w-md shadow-2xl relative zoom-in-95 animate-in duration-200">
+        <button 
+          onClick={() => { setTaskToComplete(null); setSelectedImage(null); }} 
+          className="absolute top-6 right-6 p-2 text-zinc-500 hover:text-black dark:hover:text-white bg-zinc-100 dark:bg-zinc-900 rounded-full transition-colors"
+        >
+          <X className="w-5 h-5" />
+        </button>
+        <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/20 text-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-inner">
+          <Camera className="w-8 h-8" />
+        </div>
+        <h2 className="text-2xl font-black text-black dark:text-white mb-2">Upload Proof of Delivery</h2>
+        <p className="text-zinc-500 text-sm mb-6">Please attach a photo to confirm the task is complete. The seeker will review this to finalize the request.</p>
+        
+        {!selectedImage ? (
+          <label className="border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-2xl p-8 flex flex-col items-center justify-center bg-zinc-50 dark:bg-zinc-900 cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors group">
+            <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+            <Upload className="w-10 h-10 text-zinc-400 mb-3 group-hover:scale-110 transition-transform" />
+            <p className="font-bold text-sm text-zinc-600 dark:text-zinc-300">Click to upload photo</p>
+            <p className="text-xs text-zinc-400 mt-1">JPEG, PNG, or WEBP</p>
+          </label>
+        ) : (
+          <div className="relative rounded-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800">
+            <img src={selectedImage} alt="Preview" className="w-full h-48 object-cover" />
+            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+               <button 
+                 onClick={() => setSelectedImage(null)}
+                 className="bg-red-600 text-white px-4 py-2 rounded-xl font-bold shadow-lg hover:bg-red-700 transition-colors"
+               >
+                 Remove Image
+               </button>
+            </div>
+          </div>
+        )}
+        
+        <button 
+          onClick={handleSimulateUpload} 
+          disabled={completeTaskMutation.isPending || !selectedImage} 
+          className="mt-6 w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:hover:bg-blue-600 text-white font-bold h-14 rounded-xl transition-colors shadow-lg shadow-blue-500/20"
+        >
+          {completeTaskMutation.isPending ? 'Uploading...' : 'Submit Photo'}
+        </button>
+      </div>
+    </div>
+  )
 
   // ==========================================
   // DESKTOP LAYOUT (ORIGINAL RESTORED)
@@ -481,22 +537,7 @@ export default function VolunteerDashboard() {
     <>
       {isMobile ? <MobileDashboard /> : <DesktopDashboard />}
 
-      <CompletionModal 
-        isOpen={!!taskToComplete} 
-        onClose={() => setTaskToComplete(null)} 
-        taskTitle={taskToComplete?.title || ''}
-        isErrand={taskToComplete?.category === 'errands' || (taskToComplete?.category === 'other' && taskToComplete?.errand_details !== null)}
-        onSubmit={(note, proofUrl) => {
-          if (taskToComplete) {
-            completeTaskMutation.mutate({ 
-              taskId: taskToComplete.id, 
-              note, 
-              proofUrl,
-              isUrgent: !!taskToComplete.is_urgent
-            })
-          }
-        }}
-      />
+      {taskToComplete && <UploadModal />}
 
       <TaskDetailsModal
         isOpen={!!selectedTaskDetails}

@@ -56,6 +56,23 @@ export default function SeekerTasksPage() {
   // 4. Handle Seeker Confirmation
   const confirmMutation = useMutation({
     mutationFn: async (taskId: string) => {
+      // 1. Fetch the task to get volunteer_id and is_urgent
+      const { data: task } = await supabase.from('tasks').select('volunteer_id, is_urgent').eq('id', taskId).single();
+      
+      if (task?.volunteer_id) {
+        // 2. Award points
+        const pointsEarned = task.is_urgent ? 20 : 10;
+        const { data: volProfile } = await supabase.from('profiles').select('help_score, tasks_completed').eq('id', task.volunteer_id).single();
+        
+        if (volProfile) {
+          await supabase.from('profiles').update({
+            help_score: (volProfile.help_score || 0) + pointsEarned,
+            tasks_completed: (volProfile.tasks_completed || 0) + 1
+          }).eq('id', task.volunteer_id);
+        }
+      }
+
+      // 3. Mark as complete
       const { error } = await supabase
         .from('tasks')
         .update({
@@ -143,7 +160,11 @@ export default function SeekerTasksPage() {
               </div>
             ) : pastTasks && pastTasks.length > 0 ? (
               pastTasks.map(task => (
-                <TaskCard key={task.id} task={task as any} />
+                <div key={task.id}>
+                  <TaskCard 
+                    task={task as any} 
+                  />
+                </div>
               ))
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center text-center p-10 space-y-4">

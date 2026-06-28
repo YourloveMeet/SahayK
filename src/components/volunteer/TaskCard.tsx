@@ -89,7 +89,7 @@ export function TaskCard({ task, distance, isActive, onCompleteClick, onViewClic
         )}
       </div>
 
-      <p className="text-sm text-gray-600 dark:text-gray-400 mb-5 line-clamp-2 leading-relaxed flex-1">
+      <p className="text-sm text-gray-600 dark:text-gray-400 mb-5 line-clamp-2 leading-relaxed">
         {task.description}
       </p>
 
@@ -140,7 +140,7 @@ export function TaskCard({ task, distance, isActive, onCompleteClick, onViewClic
         </>
       )}
 
-      <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 font-bold pt-4 border-t border-gray-200 dark:border-zinc-800">
+      <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 font-bold pt-4 border-t border-gray-200 dark:border-zinc-800 mt-auto">
         <span className="flex items-center gap-1.5 bg-white/50 dark:bg-black/20 px-2 py-1 rounded-md truncate max-w-[50%]">
           <MapPin className="w-3.5 h-3.5" /> {task.area_name || 'Location hidden'}
         </span>
@@ -270,17 +270,27 @@ export function TaskCard({ task, distance, isActive, onCompleteClick, onViewClic
       )}
 
       {!isSeekerView && isActive && hideVolunteerAction && (
-        <div className="mt-4 w-full py-3 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-xl font-bold flex flex-col items-center justify-center border border-green-200 dark:border-green-800 text-center gap-1">
-           <CheckCircle className="w-5 h-5" />
-           <span className="text-sm">Pending Seeker Confirmation</span>
+        <div className="mt-4 w-full py-3 px-4 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-xl border border-green-200 dark:border-green-800 flex items-center justify-between">
+           <div className="flex items-center gap-2 font-bold">
+             <CheckCircle className="w-5 h-5" />
+             <span className="text-sm">Pending Confirmation</span>
+           </div>
+           {onCompleteClick && (
+             <button 
+               onClick={() => onCompleteClick(task)}
+               className="text-xs font-bold bg-white dark:bg-black px-3 py-1.5 rounded-lg border border-green-200 dark:border-green-900 shadow-sm hover:bg-green-100 dark:hover:bg-zinc-900 transition-colors shrink-0"
+             >
+               Update Photo
+             </button>
+           )}
         </div>
       )}
 
       {/* Seeker specific actions */}
-      {isSeekerView && currentStatus === 'delivered' && onSeekerConfirm && (
+      {isSeekerView && task.status !== 'completed' && task.completion_proof_url && onSeekerConfirm && (
         <div className="mt-4">
           <SwipeToConfirm
-            key={`seeker-${currentStatus}`}
+            key={`seeker-${task.id}`}
             label="Confirm Delivery"
             onConfirm={() => onSeekerConfirm(task)}
             theme="green"
